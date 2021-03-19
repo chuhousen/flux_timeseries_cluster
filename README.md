@@ -1,1 +1,1 @@
-# Harmonic analysis of the flux and meterological variables across AmeriFlux
+# Flux harmonic analysis across AmeriFlux network
