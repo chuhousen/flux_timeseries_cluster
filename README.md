@@ -1,1 +1,1 @@
-# flux timeseries cluster - Harmonic analysis of the AmeriFlux network
+# Harmonic analysis of the flux and meterological variables across AmeriFlux
