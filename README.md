@@ -24,12 +24,12 @@ NEE, LE, H, G, NETRAD, SW_IN, SW_OUT, PPFD_IN, LW_IN, LW_OUT, TA, TS, SWC, VPD, 
   - Dynamic Time Warping (DTW) is adopted to calculate the similarity (or distance) between each pair of the composite time series. Then the hierarchical clustering is done based on the DTW distance (average linkage) and to generate the polygenesis trees. Finally, all available sites are grouped into 30 groups after trimming the dendrograms.  
 
 ## File Directory
-- **R\** all R functions and workflows
-- **diurnal-seasonality\<version>\**
+- R\ all R functions and workflows
+- diurnal-seasonality\<version>\
   - **ALL_BASE_site_list.csv**: A full list of sites, site general information, data availability (before/after gap-filling)
   - **<SITE_ID>_<ORIGINAL_TIME_RESOLTION>_<BASE_VERSION>_diurnalseasonal-#.png**: Composite diurnal-seasonal time series of target variables, showing the median, 25th, and 75th percentile 
   - **<SITE_ID>_<ORIGINAL_TIME_RESOLTION>_<BASE_VERSION>_MEDIAN.csv**: Composite median of diurnal-seasonal time series of target variables
-- **cluster-output\<version>\**
+- cluster-output\<version>\
   - **ALL_BASE_site_list2.csv**: A full list of sites, site general information, data availability (before/after gap-filling), Ecoregions, and clustering groups.
     - Ecoregions are pulled from the following sources, based on a site’s geo-location. 
       - North America Terrestrial Ecological Regions (http://www.cec.org/tools-and-resources/map-files/terrestrial-ecoregions-level-iii)
@@ -45,7 +45,7 @@ NEE, LE, H, G, NETRAD, SW_IN, SW_OUT, PPFD_IN, LW_IN, LW_OUT, TA, TS, SWC, VPD, 
 ----
 
 ## Collaborator
-David E Reed: University of Science and Arts of Oklahoma
-Housen Chu: Lawrence Berkeley National Lab
-Brad G Peter: The University of Alabama
+- David E Reed: University of Science and Arts of Oklahoma
+- Housen Chu: Lawrence Berkeley National Lab
+- Brad G Peter: The University of Alabama
 
