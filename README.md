@@ -1,1 +1,1 @@
-# flux_timeseries_cluster
+# flux timeseries cluster - Harmonic analysis of the AmeriFlux network
