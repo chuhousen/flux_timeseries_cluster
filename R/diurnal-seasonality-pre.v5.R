@@ -30,11 +30,12 @@ source(paste0(RDir, "filter_physical_range.R"))
 source(paste0(RDir, "plot_diurnal_seasonal.R"))
 source(paste0(RDir, "get_latest_VI.R"))
 source(paste0(RDir, "work_on_zm_list.R"))
+source(paste0(RDir, "get_ustar_threshold.R"))
 
 
 ## Site general info
-sgi.amf <- jsonlite::fromJSON(content(
-  POST("https://ameriflux-data.lbl.gov/AmeriFlux/SiteSearch.svc/SiteMapData/AmeriFlux"),
+sgi.amf <- jsonlite::fromJSON(httr::content(
+  httr::POST("https://ameriflux-data.lbl.gov/AmeriFlux/SiteSearch.svc/SiteMapData/AmeriFlux"),
   as = "text"
 ), flatten = TRUE)
 rownames(sgi.amf) <- paste(sgi.amf$SITE_ID)
@@ -70,8 +71,8 @@ allow.nongap.across.wd <- 0.80
 
 ### FP-Standard variable list
 ### Predefined physical range
-FP.ls <- jsonlite::fromJSON(content(
-  POST("http://ameriflux-data.lbl.gov/AmeriFlux/SiteSearch.svc/fpinVarLimits"),
+FP.ls <- jsonlite::fromJSON(httr::content(
+  httr::POST("http://ameriflux-data.lbl.gov/AmeriFlux/SiteSearch.svc/fpinVarLimits"),
   as = "text"
 ), flatten = TRUE)
 
@@ -416,6 +417,7 @@ for (k in 1:length(target.site)) {
       
     } else if (length(ppfd.loc) > 0) {
       data.work$SW_IN <- data.work[, ppfd.loc[1]] * 0.45
+      sw.loc <- which(colnames(data.work) == "SW_IN")
       
       print(paste("[Info] using PPFD_IN"))
     } else{
@@ -424,31 +426,41 @@ for (k in 1:length(target.site)) {
     }
     
     #################################################################################################################
-    ## This part ustar-filter FC, 0.1 for short, 0.2 for forest systems
-    
-    forest.igbp.ls <- c("EBF", "ENF", "DBF", "DNF", "MF")
+    ## This part ustar-filter FC, using REddyProc function 
     
     fc.loc <- which(basename_decode.work$basename == "FC" &
-                      !basename_decode.work$is_gapfill)
+                      !basename_decode.work$is_gapfill)[1]
     
     ustar.loc <- which(basename_decode.work$basename == "USTAR" &
                          !basename_decode.work$is_gapfill)[1]
     
-    if (full.ls$IGBP[k] %in% forest.igbp.ls) {
-      if (length(fc.loc) > 0 & length(ustar.loc) > 0) {
-        for (k1 in 1:length(fc.loc)) {
-          data.work[!is.na(data.work[, ustar.loc]) & data.work[, ustar.loc] < 0.15,
-                    fc.loc[k1]] <- NA
-        }
-      }
-    } else{
-      if (length(fc.loc) > 0 & length(ustar.loc) > 0) {
-        for (k1 in 1:length(fc.loc)) {
-          data.work[!is.na(data.work[, ustar.loc]) & data.work[, ustar.loc] < 0.1,
-                    fc.loc[k1]] <- NA
-        }
+    if (length(fc.loc) > 0 & length(ustar.loc) > 0) {
+      
+      uStarTh <- suppressWarnings(suppressMessages(get_ustar_threshold(data.in = data.work,
+                                                                       fc.loc = fc.loc,
+                                                                       sw.loc = sw.loc,
+                                                                       ta.loc = ta.loc,
+                                                                       ustar.loc = ustar.loc,
+                                                                       lat = as.numeric(full.ls$GRP_LOCATION.LOCATION_LAT[k]),
+                                                                       long  = as.numeric(full.ls$GRP_LOCATION.LOCATION_LONG[k])))) 
+      ## filtering using yearly thresholds
+      year.ls <- uStarTh$seasonYear[uStarTh$aggregationMode == "year"]
+      for(uu in seq_len(length(year.ls))){
+        
+        ## use yearly threshold
+        uStarTh.use <- uStarTh$uStar[which(uStarTh$aggregationMode == "year" & 
+                                             uStarTh$seasonYear == year.ls[uu])]
+        ## if yearly threshold unavailable, use cross-year threshold
+        if(is.na(uStarTh.use)) uStarTh.use <- uStarTh$uStar[which(uStarTh$aggregationMode == "single")]
+        
+        data.work[data.work$TIMESTAMP$year + 1900 == year.ls[uu] &
+                    !is.na(data.work[, ustar.loc]) &
+                    data.work[, ustar.loc] < uStarTh.use,
+                  fc.loc] <- NA  
+          
       }
     }
+    
     
     #################################################################################################################
     ## This part work on the storage correction for FC -> NEE
@@ -457,55 +469,64 @@ for (k in 1:length(target.site)) {
                       !basename_decode.work$is_gapfill)
     nee.loc <- which(basename_decode.work$basename == "NEE" &
                        !basename_decode.work$is_gapfill)
-    
-    #co2.loc<-which(basename_decode.work$basename=="CO2"&
-    #                 !basename_decode.work$is_gapfill)
+    co2.loc<-which(basename_decode.work$basename=="CO2"&
+                     !basename_decode.work$is_gapfill)
     
     if (full.ls$IGBP[k] %in% forest.igbp.ls &
         length(sc.loc) == 0 & length(nee.loc) == 0) {
       print("[Info] tall tower/no NEE & no SC")
-      #
-      #       if(length(sc.loc)==0&length(co2.loc)>0&
-      #          sum(basename_decode.work$aggregate_method[co2.loc]=="naive"|
-      #              basename_decode.work$aggregate_method[co2.loc]=="equal")==length(co2.loc)){
-      #
-      #         if(length(co2.loc)>1){
-      #           co2.top<-co2.loc[which(as.numeric(basename_decode.work$layer[co2.loc])==
-      #                                    min(as.numeric(basename_decode.work$layer[co2.loc])))]
-      #         }else{
-      #           co2.top<-co2.loc
-      #         }
-      #
-      #         site.zm.list<-work_on_zm_list(work.path = paste(path,"flux-timeseries-cluster\\",sep=""),
-      #                                       target.site = target.site[k])
-      #
-      #         if(max(site.zm.list$htower)>5){
-      #
-      #           if(nrow(site.zm.list)==1){
-      #             zec<-rep(site.zm.list$htower,nrow(data.work))
-      #           }else{
-      #             zec.break<-0
-      #             zec<-NULL
-      #             for(k2 in 1:(nrow(site.zm.list)-1)){
-      #               zec.break<-c(zec.break,which(as.character(data.work$TIMESTAMP_END)==as.character(site.zm.list$end[k2])))
-      #               zec<-c(zec.rep(site.zm.list$htower,(zec.break[k2+1]-zec.break[k2])))
-      #             }
-      #             zec<-c(zec,rep(site.zm.list$htower[nrow(site.zm.list)],nrow(data.work)-length(zec)))
-      #           }
-      #
-      #           data.work$SC<-c(NA,0.5*(data.work[,co2.top][c(3:(nrow(data.work)))]-data.work[,co2.top][c(1:(nrow(data.work)-2))]),NA)*
-      #             100/288.15/8.3143*1000*zec/(hr*60)
-      #
-      #           print("[Info] forest/no SC, calculate SC from CO2")
-      #
-      #         }else{
-      #
-      #           data.work$SC<-0
-      #           print("[Info] short tower/no SC, assume SC = 0")
-      #
-      #         }
-      #       }
       
+      # if (length(sc.loc) == 0 & length(co2.loc) > 0 &
+      #     sum(
+      #       basename_decode.work$aggregate_method[co2.loc] == "naive" |
+      #       basename_decode.work$aggregate_method[co2.loc] == "equal"
+      #     ) == length(co2.loc)) {
+      #   if (length(co2.loc) > 1) {
+      #     co2.top <-
+      #       co2.loc[which(as.numeric(basename_decode.work$layer[co2.loc]) ==
+      #                       min(as.numeric(basename_decode.work$layer[co2.loc])))]
+      #   } else{
+      #     co2.top <- co2.loc
+      #   }
+      #   
+      #   site.zm.list <-
+      #     work_on_zm_list(
+      #       work.path = paste0(path, "R\\"),
+      #       target.site = target.site[k]
+      #     )
+      #   
+      #   if (max(site.zm.list$htower) > 5) {
+      #     if (nrow(site.zm.list) == 1) {
+      #       zec <- rep(site.zm.list$htower, nrow(data.work))
+      #     } else{
+      #       zec.break <- 0
+      #       zec <- NULL
+      #       for (k2 in 1:(nrow(site.zm.list) - 1)) {
+      #         zec.break <-
+      #           c(zec.break, which(
+      #             as.character(data.work$TIMESTAMP_END) == as.character(site.zm.list$end[k2])
+      #           ))
+      #         zec <-
+      #           c(zec.rep(site.zm.list$htower, (zec.break[k2 + 1] - zec.break[k2])))
+      #       }
+      #       zec <-
+      #         c(zec, rep(site.zm.list$htower[nrow(site.zm.list)], nrow(data.work) - length(zec)))
+      #     }
+      #     
+      #     data.work$SC <-
+      #       c(NA, 0.5 * (data.work[, co2.top][c(3:(nrow(data.work)))] - data.work[, co2.top][c(1:(nrow(data.work) -
+      #                                                                                               2))]), NA) *
+      #       100 / 288.15 / 8.3143 * 1000 * zec / (hr * 60)
+      #     
+      #     print("[Info] forest/no SC, calculate SC from CO2")
+      #     
+      #   } else{
+      #     data.work$SC <- 0
+      #     print("[Info] short tower/no SC, assume SC = 0")
+      #     
+      #   }
+      # }
+      # 
       
       
     } else{
@@ -638,7 +659,7 @@ for (k in 1:length(target.site)) {
         
       }
       
-      # iterate gap-filling by interpolation within & acorss windows,
+      # iterate gap-filling by interpolation within & across windows,
       # relax allow.nongap.within.wd in the 2nd round of gap-filling
       for (i3 in 1:2) {
         ## fill the gaps within each wd
