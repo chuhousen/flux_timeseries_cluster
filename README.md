@@ -3,24 +3,25 @@
 This project aims to use the key time-series features (e.g., diurnal, seasonal dynamics) of flux & met variables, to explore the similarity among sites across AmeriFlux.
 
 ### File sources
-Start with all available AmeriFlux BASE files in the current version (i.e., 271 sites, version 20200116), and down-select based on the data availability (see Table).  
+All available AmeriFlux BASE files (i.e., 302 sites, version 20210319), and down-select based on the data availability (see Table).  
 
 ### Target variables
-NEE, LE, H, G, NETRAD, SW_IN, SW_OUT, PPFD_IN, LW_IN, LW_OUT, TA, TS, SWC, VPD, USTAR, WS. If multiple variables are present at a single-site file, only the top-level/aggregated one is used. 
+NEE, LE, H, NETRAD, SW_IN, TA, SWC, VPD, USTAR, WS. If multi-levels/-locations are present at a site, use only the top-level/aggregated one. 
 
 ### Processing summary
 - All data are first filtered by expected physical ranges. 
-- Specifically for NEE filtering/processing:
-  - Use NEE if NEE is provided.
-  - Assume NEE = FC + SC if NEE is not provided.
-    - Filter FC for USTAR < 0.1 m/s (short-vegetation sites) or < 0.15 m/s for tall-vegetation sites)
-    - For short-vegetation sites, use SC if it’s provided. Or, assume SC = 0.
-    - For tall-vegetation sites, use SC if it’s provided. If SC is not provided, then drop NEE for this site.   
-  - The data are aggregated into the desired composite diurnal-seasonal time series, i.e., to reduce the data points, fill the gaps, & keep the key features of the time series (i.e., diurnal & seasonal dynamics)
-  - For this version, the original time series is first downscaled to hourly (24 points per day), and then grouped into 24 non-overlapped windows in a calendar year (~15 days per window, e.g., Jan 1-15, 16-30...). The median (& percentiles) of the diurnal time series for each window are calculated. All available years are used together.
+- Most variables are used as provided, except for NEE:
+  - Use NEE directly if NEE is provided.
+  - Assume NEE = FC + SC if NEE is not provided, and use FC and SC from following sources:
+    - FC, filtered using site-specific ustar thresholds. 
+    - For non-forest sites, use SC if it’s provided. Or, assume SC = 0.
+    - For forest sites, use SC if it’s provided. If SC is not provided, then calculate SC based on top-level CO2.
+      - Drop a forest site if neither SC nor CO2 (& its measurement height) is provided. 
+  - The data are aggregated into the desired composite diurnal-seasonal time series, i.e., to reduce the data points, fill the short gaps, & keep the key features of the time series (i.e., diurnal & seasonal dynamics)
+  - For this version, the original time series is first downscaled to hourly (24 points per day), and then grouped into 24 non-overlapped windows in a calendar year (~15 days per window, e.g., Jan 1-15, 16-30...). The median of the diurnal time series for each window are calculated. All available years are used together.
   - The final composite time series is a multi-year composite diurnal-seasonal time series with 24*24 time steps (points), starting with 0h-1h, 1h-2h, 2h-3h… of the first window (Jan 1st-15th), then 0h-1h… of the second window (Jan 16th-30th), and all the way to 22h-23h, 23h-0h of the last window (DOY 346-365).  
-  - The composite time series, if there’s any remaining gap, is then filled by interpolation within each window and then across the windows. If there’s more than 33% of gaps within each window and 20% of gaps across windows, then don’t do gap-filling.
-  - The time series clustering is done for each of the target variables on the composite time series from all available sites (excluding those still have remaining gaps in the composite time series) (see Table)
+  - The composite time series, if there’s any remaining gap, is then filled by interpolation within each window and then across the windows. If there’s more than 20% of gaps within each window and 20% of gaps across windows, then don’t do gap-filling.
+  - The time series clustering is done for each of the target variables on the composite time series from all available sites (excluding those still have remaining gaps in the composite time series)
   - Dynamic Time Warping (DTW) is adopted to calculate the similarity (or distance) between each pair of the composite time series. Then the hierarchical clustering is done based on the DTW distance (average linkage) and to generate the polygenesis trees. Finally, all available sites are grouped into 30 groups after trimming the dendrograms.  
 
 ## File Directory
