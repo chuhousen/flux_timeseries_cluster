@@ -2,7 +2,8 @@ simple_aggregate<-function(basename_decode.work,
                            data.work,
                            exclude.ls=NULL,
                            #skip.horizontal.average=c(),
-                           echo=T){
+                           echo=T,
+                           FP.ls){
   
   #### II. handle the 1step/2step aggregation
   #   1step: already replicate-averaged & not unique, 
@@ -89,7 +90,7 @@ simple_aggregate<-function(basename_decode.work,
           
           ## replace with replicate-aggregated data/basename_decode
           data.work.tmp1<-as.data.frame(add.data.tmp[,-1])
-          basename_decode.work.tmp1<-basename_pharse(var.name=add.name.tmp,
+          basename_decode.work.tmp1<-basename_parse(var.name=add.name.tmp,
                                                      FP.ls=FP.ls)
         }
         
@@ -118,7 +119,7 @@ simple_aggregate<-function(basename_decode.work,
         
         ## return agregated ones
         basename_decode.out<-rbind.data.frame(basename_decode.out,
-                                              basename_pharse(var.name=add.name,
+                                              basename_parse(var.name=add.name,
                                                               FP.ls=FP.ls)) 
         data.out.name<-c(colnames(data.out),
                          colnames(add.data)[-1])

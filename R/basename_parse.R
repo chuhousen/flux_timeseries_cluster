@@ -402,7 +402,7 @@ basename_parse <- function(var.name,                             ## list of name
     basename_decode[, -which(colnames(basename_decode) == "working_names")]
   
   ## re-order to follow input order
-  basename_decode <- merge.data.frame(x = data.frame(variable_names = var.name,
+  basename_decode2 <- merge.data.frame(x = data.frame(variable_names = var.name,
                                                        stringsAsFactors = FALSE),
                                       y = basename_decode,
                                       by = "variable_names",
