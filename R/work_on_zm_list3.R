@@ -102,22 +102,24 @@ work_on_zm_list3<-function(work.path,    ## where a previous version of zm list 
   zm.list.new10 <- data.frame(site = c("US-xAB", "US-xBL", "US-xBN", "US-xDJ", "US-xGR",
                                       "US-xJE", "US-xML", "US-xNW", "US-xSB", "US-xSC",
                                       "US-xSE", "US-xSJ", "US-xSP", "US-xST", "US-xTA", 
-                                      "US-xTR", "US-xUK", "US-xUN", "US-xWR", "US-xYE"),
+                                      "US-xTR", "US-xUK", "US-xUN", "US-xWR", "US-xYE",
+                                      "PR-xGU", "PR-xLA", "US-xLE", "US-xPU", "US-xRN"),
                              start = rep("all", 20),
                              end = rep("all", 20),
                              htower = c(18.9, 8.55, 19.78, 22.5, 45.89,
                                         42.46, 29.06, 8.46, 35.81, 51.88,
                                         61.61, 39.35, 52.49, 22.36, 35.7,
-                                        35.97, 35.77, 39.05, 74.18, 18.43))
+                                        35.97, 35.77, 39.05, 74.18, 18.43,
+                                        23.27, 8, 47.13, NA, 39.19))
   
   zm.list.new11 <- data.frame(site = c("BR-Npw", "CA-LP1", "CR-Lse", "MX-Aog", "MX-Tes",
                                        "US-BZS", "US-CMW", "US-CS2", "US-Cwt", "US-HBK",
-                                       "US-LPH", "US-LS2", "US-SRS" ),
+                                       "US-LPH", "US-LS2", "US-SRS", "US-BZB"),
                              start = rep("all", 13),
                              end = rep("all", 13),
                              htower = c(20, NA, 42, 14.7, NA,
                                         2.5, 14, NA, NA, 33.2,
-                                        20.5, 8, 7))
+                                        20.5, 8, 7, 2.5))
   
   zm.list.new12 <- data.frame(site = c("US-Ha2"),
                               start = c("all", 200611010000, 201406040000),
