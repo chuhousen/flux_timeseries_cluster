@@ -506,6 +506,6 @@ for (l1 in 1:length(target.var.ls)) {
 write.csv(
   full.ls,
   paste0(path.out, "ALL_BASE_site_short_list2.csv"),
-  quote = F,
+  quote = T,
   row.names = F
 )
