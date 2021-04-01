@@ -948,15 +948,15 @@ write.csv(
 )
 
 ## distribution of data availability
-hist(apply(full.ls[, c("NETRAD_F", "VPD_F", "TA_F", "USTAR_F", "SW_IN_F", "SWC_F")], 1, function(x) sum(x == 1)))
-hist(apply(full.ls[, c("NEE_F", "LE_F", "H_F")], 1, function(x) sum(x == 1)))
+hist(apply(full.ls[, c("NETRAD_F", "VPD_F", "TA_F",  "SW_IN_F", "SWC_F")], 1, function(x) sum(x == 1)))
+hist(apply(full.ls[, c("NEE_F", "LE_F", "H_F", "USTAR_F")], 1, function(x) sum(x == 1)))
 
 ## select sites with 2+ flux variables, 4+ met variables that have no gaps
 select.ls <-
-  full.ls[apply(full.ls[, c("NETRAD_F", "VPD_F", "TA_F", "USTAR_F", "SW_IN_F", "SWC_F")],
-                1, function(x) sum(x == 1)) >= 5 &
-            apply(full.ls[, c("NEE_F", "LE_F", "H_F")],
-                  1, function(x) sum(x == 1)) >= 2, ]
+  full.ls[apply(full.ls[, c("NETRAD_F", "VPD_F", "TA_F", "SW_IN_F", "SWC_F")],
+                1, function(x) sum(x == 1)) >= 4 &
+            apply(full.ls[, c("NEE_F", "LE_F", "H_F", "USTAR_F")],
+                  1, function(x) sum(x == 1)) >= 3, ]
 
 write.csv(
   select.ls,
