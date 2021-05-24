@@ -3,12 +3,14 @@
 This project aims to use the key time-series features (e.g., diurnal, seasonal dynamics) of flux & met variables, to explore the similarity among sites across AmeriFlux.
 
 ### File sources
-All available AmeriFlux BASE files (i.e., latest version 20210331), and down-select based on the data availability (see Table). 
+All available AmeriFlux BASE files (i.e., latest version 20210331), and down-select based on the data availability. 
+
 ### Target variables
 NEE, LE, H, NETRAD, SW_IN, TA, SWC, VPD, USTAR. If multiple levels/locations are present at a site, use only the top-level & aggregated one. Use only the non-filled variables from the data files.
 
 ### Processing summary
-- Filtered by expected physical ranges. 
+- Select sites that have minimal 3 year data record.   
+- Filter data by expected physical ranges. 
 - Most variables are used as provided, except for NEE:
   - Use NEE directly if NEE is provided.
   - If NEE is not provided, assume NEE = FC + SC from following sources:
@@ -21,7 +23,7 @@ NEE, LE, H, NETRAD, SW_IN, TA, SWC, VPD, USTAR. If multiple levels/locations are
   - Group into 24 non-overlapped windows in a calendar year (~15 days per window, e.g., Jan 1-15, 16-30...).
   - The median of the diurnal time series for each window are calculated. 
   - All available years are used together.
-  - The final composite time series is a multi-year composite diurnal-seasonal time series with 24*24 time steps (points).  
+  - The final composite time series is a multiyear composite diurnal-seasonal time series with 24*24 time steps (points).  
 - Fill short remaining gaps by interpolation within each window and then across the windows. 
   - Skip a site-variable if more than 20% of gaps
 - Down-select sites meeting the following data availability
