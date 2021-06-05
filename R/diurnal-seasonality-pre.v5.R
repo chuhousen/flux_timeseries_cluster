@@ -93,7 +93,7 @@ sgi.amf <- jsonlite::fromJSON(httr::content(
 ## UTC offset
 utc.offset <- get_utc_offset(site = sgi.amf$SITE_ID,
                              badm.path = badm.in,
-                             badm.file = "AMF_AA-Net_BIF_20210226.xlsx")
+                             badm.file = "AMF_AA-Net_BIF_20210513.xlsx")
 
 sgi.amf <- merge.data.frame(sgi.amf,
                             utc.offset[, -1],
@@ -140,9 +140,7 @@ var.info <- var.info.tmp[[1]]
 target.site <-
   get_full_list(base.in)   
 ##  or specified subset for update only, by c(CC-XXX,.....)
-# target.site<-c("US-CF1","US-Ton","US-RC4","US-RC3","US-RC2",
-#                "US-RC5","US-NGB","US-CF2","US-Var","US-CF3",
-#                "US-CF4","US-RC1")
+# target.site<-c("US-MWA","US-MWF","US-MWS","US-MWU","PE-QFR")
 
 # drop site from drop.ls
 target.site <- target.site[!target.site %in% drop.ls]

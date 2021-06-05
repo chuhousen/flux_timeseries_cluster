@@ -127,6 +127,12 @@ for (l1 in 1:length(target.var.ls)) {
   print(paste("################################################"))
   print(paste("######  ", target.var, "  ##################"))
   
+  if(sum(duplicated(site.ls)) > 0)
+    stop(paste(
+      "[error] multiple composite time series files for following",
+      site.ls[which(duplicated(site.ls))]
+    ))
+  
   #########################################################################################################
   #### work on prepare site list
   
