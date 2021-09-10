@@ -17,6 +17,7 @@ map.in <- paste0(path, "ecoregion\\")
 
 source(paste0(RDir, "math_utility.R"))
 source(paste0(RDir, "get_ecomap.R"))
+source(paste0(RDir, "cluster_color_panel.R"))
 
 ###### Control parameter
 ver <- "20210331"
@@ -26,7 +27,7 @@ n.grp <- c(10:30)  # searching window for the n of clusters/branches to keep
 
 # target variables to run uni-variate clustering
 target.var.ls <- c("NEE", "LE", "H", "USTAR",
-                   "NETRAD", "SW_IN", 
+                   "NETRAD", #"SW_IN", 
                    "TA", "VPD", "SWC")
 
 path.in <- paste0(path.in.root, ver, "\\")
@@ -301,13 +302,22 @@ for (l1 in 1:length(target.var.ls)) {
     quote = T
   )
   
+  col_pan <- cluster_color_panel(target.var = target.var)
   # return cluster ID to full list
   full.ls <- data.frame(full.ls,
                         tmp = NA)
+  col_pan_get <- rep(which(is.na(col_pan[, target.var])), nrow(full.ls))
   
   for (i3 in 1:length(grp.ls)) {
-    full.ls$tmp[which(full.ls$SITE_ID == paste(names(grp.ls)[i3]))] <-
-      grp.ls[i3]
+    full.ls$tmp[which(full.ls$SITE_ID == paste(names(grp.ls)[i3]))] <- grp.ls[i3]
+    
+    if(grp.ls[i3] %in% col_pan[, target.var]){
+      col_pan_get[i3] <- which(col_pan[, target.var] == grp.ls[i3])
+      
+    }else if(!is.na(grp.ls[i3])){
+      col_pan_get[i3] <- which(col_pan[, target.var] == 99)
+      
+    }
   }
   colnames(full.ls)[which(colnames(full.ls) == "tmp")] <-
     paste(target.var, "_clust_group", sep = "")
@@ -325,7 +335,9 @@ for (l1 in 1:length(target.var.ls)) {
   plot(
     ape::as.phylo(hc),
     type = "fan",
-    tip.color = rainbow(n.grp.opt)[grp.ls],
+    tip.color = rgb(col_pan$r[col_pan_get], 
+                    col_pan$g[col_pan_get], 
+                    col_pan$b[col_pan_get], maxColorValue = 255),
     label.offset = 0.5,
     #show.node.label=T,
     cex = 0.9
@@ -346,7 +358,7 @@ for (l1 in 1:length(target.var.ls)) {
   par(
     mfrow = c(5, ceiling(n.grp.opt / 5)),
     mar = c(0, 0, 0, 0),
-    oma = c(3, 5, 0.5, 0.5)
+    oma = c(4, 6.5, 1, 1)
   )
   
   for (j2 in 1:n.grp.opt) {
@@ -382,17 +394,39 @@ for (l1 in 1:length(target.var.ls)) {
     
     if ((j2 - 1) == floor((j2 - 1) / ceiling(n.grp.opt / 5)) * ceiling(n.grp.opt /
                                                                        5)) {
-      axis(2, seq(
-        round(range(data.pre)[1], digits = 0),
-        round(range(data.pre)[2], digits = 0),
-        length.out = 6
-      ),
-      las = 2)
+      if(target.var == "NEE"){
+        axis(2, seq(-50, 25, length.out = 4),
+        las = 2)
+      }else{
+        axis(2, seq(
+          round(range(data.pre)[1], digits = 0),
+          round(range(data.pre)[2], digits = 0),
+          length.out = 6
+        ),
+        las = 2)        
+      }
     }
-    #if(ncol(data.pre.sub)>1)
     lines(data.pre.sub.mean,
-          col = rainbow(n.grp.opt)[j2],
-          lwd = 1.5)
+                  col = "black",
+                  lwd = 1.5)
+    #if(ncol(data.pre.sub)>1)
+    # if(j2 %in% col_pan[, target.var]){
+    #   lines(data.pre.sub.mean,
+    #         col = rgb(col_pan$r[which(col_pan[, target.var] == j2)], 
+    #                   col_pan$g[which(col_pan[, target.var] == j2)], 
+    #                   col_pan$b[which(col_pan[, target.var] == j2)], maxColorValue = 255),
+    #         lwd = 1.5)
+    #   
+    # }else{
+    #   lines(data.pre.sub.mean,
+    #         col = rgb(col_pan$r[which(col_pan[, target.var] == 99)], 
+    #                   col_pan$g[which(col_pan[, target.var] == 99)], 
+    #                   col_pan$b[which(col_pan[, target.var] == 99)], maxColorValue = 255),
+    #         lwd = 1.5)
+    #   
+    # }
+    
+    
   }
   mtext(
     side = 1,
@@ -401,13 +435,26 @@ for (l1 in 1:length(target.var.ls)) {
     line = 2,
     cex = 1.5
   )
-  mtext(
-    side = 2,
-    paste(target.var),
-    outer = T,
-    line = 3.2,
-    cex = 1.5
-  )
+  
+  if(target.var == "NEE"){
+    mtext(
+      side = 2,
+      expression(NEE~'('~mu~mole~m^{-2}~s^{-1}~')'),
+      outer = T,
+      line = 3.2,
+      cex = 1.5
+    )
+    
+  }else{
+    mtext(
+      side = 2,
+      paste(target.var),
+      outer = T,
+      line = 3.2,
+      cex = 1.5
+    )  
+  }
+  
   dev.off()
   
   ### subgroup plot
