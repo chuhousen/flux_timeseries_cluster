@@ -3,10 +3,10 @@
 This project aims to use the key time-series features (e.g., diurnal, seasonal dynamics) of flux & met variables, to explore the similarity among sites across AmeriFlux.
 
 ### File sources
-All available AmeriFlux BASE files (i.e., latest version 20210331), and down-select based on the data availability. 
+All available AmeriFlux BASE files (i.e., latest version 20220701), and down-select based on the data availability. 
 
 ### Target variables
-NEE, LE, H, NETRAD, SW_IN, TA, SWC, VPD, USTAR. If multiple levels/locations are present at a site, use only the top-level & aggregated one. Use only the non-filled variables from the data files.
+NEE, LE, H, NETRAD, TA, SWC, VPD, USTAR. If multiple levels/locations are present at a site, use only the top-level & aggregated one. Use only the non-filled variables from the data files.
 
 ### Processing summary
 - Select sites that have minimal 3 year data record.   
@@ -27,14 +27,13 @@ NEE, LE, H, NETRAD, SW_IN, TA, SWC, VPD, USTAR. If multiple levels/locations are
 - Fill short remaining gaps by interpolation within each window and then across the windows. 
   - Skip a site-variable if more than 20% of gaps
 - Down-select sites meeting the following data availability
-  - At least 3 out of NEE, LE, H, USTAR available
-  - At least 4 out of SW_IN, NETRAD, TA, VPD, SWC available
-  - The latest version (20210331) contain 248 sites.
+  - At least 1 out of all 8 target variables
+  - The latest version (20220701) contain 343 sites.
 - Cluster time series across all available sites
   - Cluster based on each variable
   - Cluster based on multiple variables together
     - All flux variables (NEE, LE, H, USTAR)
-    - All met variables (SW_IN, TA, VPD, SWC)
+    - All met variables (NETRAD, TA, VPD, SWC)
     - All flux and met variables
   - Dynamic Time Warping (DTW) is adopted to calculate the similarity (or distance)
   - Hierarchical clustering is done based on the DTW distance (average linkage) and to generate the polygenesis trees.
