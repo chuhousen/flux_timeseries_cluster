@@ -20,7 +20,7 @@ source(paste0(RDir, "get_ecomap.R"))
 source(paste0(RDir, "cluster_color_panel.R"))
 
 ###### Control parameter
-ver <- "20210331"
+ver <- "20220701"
 
 len.ts <- 24 * 24  ## length of time series
 n.grp <- c(10:30)  # searching window for the n of clusters/branches to keep
@@ -29,9 +29,20 @@ n.grp <- c(10:30)  # searching window for the n of clusters/branches to keep
 target.var.ls <- c("NEE", "LE", "H", "USTAR",
                    "NETRAD", #"SW_IN", 
                    "TA", "VPD", "SWC")
+target.lab.ls <- list(expression(NEE~'('*mu*mole~m^{-2}~s^{-1}*')'),
+                      expression(LE~'('*W~m^{-2}*')'),
+                      expression(H~'('*W~m^{-2}*')'),
+                      expression(USTAR~'('*m~s^{-1}*')'),
+                      expression(NETRAD~'('*W~m^{-2}*')'),
+                      expression(TA~'('*degree~C*')'),
+                      expression(VPD~'('*kPa*')'),
+                      expression(SWC~'('*'%'*')'))
 
 path.in <- paste0(path.in.root, ver, "\\")
-path.out <- paste0(path.out.root, ver, "\\")
+
+if (!dir.exists(paste(path.out.root, ver, sep = "")))
+  dir.create(paste(path.out.root, ver, sep = ""))
+path.out <- paste(path.out.root, ver, "\\", sep = "")
 
 ###################################################################################################################
 ## extract full site list
@@ -107,8 +118,8 @@ ecomap3 <- sp::spTransform(ecomap3,
                        CRS("+proj=longlat +datum=WGS84"))
 
 ### work on extraction of ecoregion for each site
-pts <- sp::SpatialPoints(full.ls[, c("GRP_LOCATION.LOCATION_LONG",
-                                 "GRP_LOCATION.LOCATION_LAT")],
+pts <- sp::SpatialPoints(full.ls[, c("LOCATION_LONG",
+                                 "LOCATION_LAT")],
                      proj4string = CRS("+proj=longlat +datum=WGS84"))
 full.ls <- cbind.data.frame(full.ls,
                             sp::over(pts, ecomap1)[, c(4, 5, 6, 7)],
@@ -171,8 +182,8 @@ for (l1 in 1:length(target.var.ls)) {
     print(paste("[Info]", "drop", length(drop.case), "sites because of gaps"))
     print(paste("[Info]", "drop", paste(drop.case, collapse = " ")))
   }
-  lat.ls <- as.numeric(full.ls[site.ls, "GRP_LOCATION.LOCATION_LAT"])
-  lon.ls <- as.numeric(full.ls[site.ls, "GRP_LOCATION.LOCATION_LONG"])
+  lat.ls <- as.numeric(full.ls[site.ls, "LOCATION_LAT"])
+  lon.ls <- as.numeric(full.ls[site.ls, "LOCATION_LONG"])
   
   ################################################################################################################
   #### prepare full diurnal-seasonal time series
@@ -340,7 +351,7 @@ for (l1 in 1:length(target.var.ls)) {
                     col_pan$b[col_pan_get], maxColorValue = 255),
     label.offset = 0.5,
     #show.node.label=T,
-    cex = 0.9
+    cex = 0.7
   )
   #text(0,0,)
   dev.off()
@@ -348,8 +359,8 @@ for (l1 in 1:length(target.var.ls)) {
   ## plot grouped diurnal-seasonal plots
   png(
     paste0(path.out, "AMF-diurnal-seasonal-cluster-", target.var, ".png"),
-    width = 11,
-    height = 9,
+    width = 8,
+    height = 6.5,
     units = "in",
     pointsize = 9,
     res = 300
@@ -358,8 +369,11 @@ for (l1 in 1:length(target.var.ls)) {
   par(
     mfrow = c(5, ceiling(n.grp.opt / 5)),
     mar = c(0, 0, 0, 0),
-    oma = c(4, 6.5, 1, 1)
+    oma = c(1, 6.5, 4, 1)
   )
+  
+  # sort by number of sites
+  grp.ls.sort <- as.numeric(rev(names(sort(table(grp.ls)))))
   
   for (j2 in 1:n.grp.opt) {
     plot(
@@ -374,87 +388,91 @@ for (l1 in 1:length(target.var.ls)) {
       yaxt = "n"
     )
     
-    data.pre.sub <- as.data.frame(data.pre[, which(grp.ls == j2)])
+    data.pre.sub <- as.data.frame(data.pre[, which(grp.ls == grp.ls.sort[j2])])
     
     data.pre.sub.mean <- apply(data.pre.sub, 1, na.mean)
     
     for (j1 in 1:ncol(data.pre.sub)) {
       lines(data.pre.sub[, j1],
-            col = "grey")
+            col = "grey",
+            lwd = 0.5)
     }
-    legend(
-      -20,
-      range(data.pre)[2],
-      paste(names(grp.ls[grp.ls == j2])),
-      col = "darkgrey",
-      cex = 0.7,
-      bty = "n",
-      ncol = ceiling(ncol(data.pre.sub) / 22)
-    )
-    
+    if(ncol(data.pre.sub) < 5){
+      legend(
+        -25,
+        range(data.pre)[2],
+        paste(names(grp.ls[grp.ls == grp.ls.sort[j2]])),
+        col = "darkgrey",
+        cex = 1,
+        bty = "n",
+        ncol = ceiling(ncol(data.pre.sub) / 22)
+      )  
+    }
     if ((j2 - 1) == floor((j2 - 1) / ceiling(n.grp.opt / 5)) * ceiling(n.grp.opt /
                                                                        5)) {
       if(target.var == "NEE"){
         axis(2, seq(-50, 25, length.out = 4),
         las = 2)
       }else{
-        axis(2, seq(
-          round(range(data.pre)[1], digits = 0),
-          round(range(data.pre)[2], digits = 0),
-          length.out = 6
-        ),
-        las = 2)        
+        axis(
+          2,
+          at = seq(range(data.pre)[1],
+                   range(data.pre)[2],
+                   length.out = 4),
+          labels = round(seq(
+            range(data.pre)[1],
+            range(data.pre)[2],
+            length.out = 4
+          ),
+          digits = 0),
+          las = 2
+        )        
       }
     }
-    lines(data.pre.sub.mean,
-                  col = "black",
-                  lwd = 1.5)
-    #if(ncol(data.pre.sub)>1)
-    # if(j2 %in% col_pan[, target.var]){
-    #   lines(data.pre.sub.mean,
-    #         col = rgb(col_pan$r[which(col_pan[, target.var] == j2)], 
-    #                   col_pan$g[which(col_pan[, target.var] == j2)], 
-    #                   col_pan$b[which(col_pan[, target.var] == j2)], maxColorValue = 255),
-    #         lwd = 1.5)
-    #   
-    # }else{
-    #   lines(data.pre.sub.mean,
-    #         col = rgb(col_pan$r[which(col_pan[, target.var] == 99)], 
-    #                   col_pan$g[which(col_pan[, target.var] == 99)], 
-    #                   col_pan$b[which(col_pan[, target.var] == 99)], maxColorValue = 255),
-    #         lwd = 1.5)
-    #   
-    # }
+    # lines(data.pre.sub.mean,
+    #               col = "black",
+    #               lwd = 1.5)
+    if (ncol(data.pre.sub) > 1)
+      if (grp.ls.sort[j2] %in% col_pan[, target.var]) {
+        lines(
+          data.pre.sub.mean,
+          col = rgb(col_pan$r[which(col_pan[, target.var] == grp.ls.sort[j2])],
+                    col_pan$g[which(col_pan[, target.var] == grp.ls.sort[j2])],
+                    col_pan$b[which(col_pan[, target.var] == grp.ls.sort[j2])], 
+                    maxColorValue = 255),
+          lwd = 2
+        )
+        
+      # } else{
+      #   lines(
+      #     data.pre.sub.mean,
+      #     col = rgb(col_pan$r[which(col_pan[, target.var] == 99)],
+      #               col_pan$g[which(col_pan[, target.var] == 99)],
+      #               col_pan$b[which(col_pan[, target.var] == 99)],
+      #               maxColorValue = 255),
+      #     lwd = 2
+      #   )
+        
+      }
     
     
   }
   mtext(
-    side = 1,
+    side = 3,
     "Date-Hour",
     outer = T,
-    line = 2,
+    line = 1.5,
     cex = 1.5
   )
   
-  if(target.var == "NEE"){
-    mtext(
-      side = 2,
-      expression(NEE~'('~mu~mole~m^{-2}~s^{-1}~')'),
-      outer = T,
-      line = 3.2,
-      cex = 1.5
-    )
-    
-  }else{
-    mtext(
-      side = 2,
-      paste(target.var),
-      outer = T,
-      line = 3.2,
-      cex = 1.5
-    )  
-  }
-  
+  mtext(
+    side = 2,
+    target.lab.ls[[l1]],
+    outer = T,
+    line = 3.2,
+    cex = 1.5
+  )
+
   dev.off()
   
   ### subgroup plot

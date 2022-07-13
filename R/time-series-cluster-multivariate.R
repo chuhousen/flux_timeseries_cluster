@@ -19,15 +19,15 @@ source(paste0(RDir, "math_utility.R"))
 source(paste0(RDir, "get_ecomap.R"))
 
 ###### Control parameter
-ver <- "20210331"
+ver <- "20220701"
 
 len.ts <- 24 * 24  ## length of time series
 n.grp <- c(10:30)  # searching window for the n of clusters/branches to keep
 
 # target variables to run multi-variate clustering
-target.var.ls <- list(c("SW_IN", "TA", "VPD", "SWC"),
+target.var.ls <- list(c("NETRAD", "TA", "VPD", "SWC"),
                       c("NEE", "LE", "H", "USTAR"),
-                      c("NEE", "LE", "H", "USTAR", "SW_IN", "TA", "VPD", "SWC"))
+                      c("NEE", "LE", "H", "USTAR", "NETRAD", "TA", "VPD", "SWC"))
 target.var.outname.ls <- c("ALL_MET", "ALL_FLUX", "ALL_FLUXMET")
 
 path.in <- paste0(path.in.root, ver, "\\")
@@ -123,8 +123,8 @@ for (l1 in 1:length(target.var.ls)) {
     print(paste("[Info]", "drop", length(drop.case), "sites because of gaps"))
     print(paste("[Info]", "drop", paste(drop.case, collapse = " ")))
   }
-  lat.ls <- as.numeric(full.ls[site.ls, "GRP_LOCATION.LOCATION_LAT"])
-  lon.ls <- as.numeric(full.ls[site.ls, "GRP_LOCATION.LOCATION_LONG"])
+  lat.ls <- as.numeric(full.ls[site.ls, "LOCATION_LAT"])
+  lon.ls <- as.numeric(full.ls[site.ls, "LOCATION_LONG"])
   
   ################################################################################################################
   #### prepare full diurnal-seasonal time series
@@ -310,7 +310,7 @@ for (l1 in 1:length(target.var.ls)) {
     tip.color = rainbow(n.grp.opt)[grp.ls],
     label.offset = 0.5,
     #show.node.label=T,
-    cex = 0.9
+    cex = 0.7
   )
   #text(0,0,)
   dev.off()
