@@ -3,11 +3,7 @@
 .Rhistory
 .RData
 .Ruserdata
-diurnal-seasonality/20201117
-diurnal-seasonality/20210331
-cluster-output/20200116
-cluster-output/20201117
-cluster-output/20210331
-diurnal-seasonality/20220701/*.png
-diurnal-seasonality/20220701/*basename_decode.csv
-variable-year
+diurnal-seasonality/*
+cluster-output/*
+variable-year/*
+.gitignore

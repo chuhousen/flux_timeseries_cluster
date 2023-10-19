@@ -30,7 +30,7 @@ source(paste0(RDir, "badm.extract.R"))
 source(paste0(RDir, "get_utc_offset.R"))
 
 ###   Create a version sub directory
-ver <- "20210331"     # for storing outputs
+ver <- "20220701"     # for storing outputs
 
 if (!dir.exists(paste(path.out.root, ver, sep = "")))
   dir.create(paste(path.out.root, ver, sep = ""))
@@ -118,7 +118,7 @@ var.info <- var.info.tmp[[1]]
 target.site <-
   get_full_list(base.in)   
 ##  or specified subset for update only, by c(CC-XXX,.....)
-target.site<-c("US-Oho")
+target.site<-c("US-Oho", "US-CRT", "US-NR1", "US-Ne1", "US-Los", "US-WPT")
 
 target.res <- rep("HH", length(target.site))
 target.res[which(
@@ -850,7 +850,7 @@ for (k in 1:length(target.site)) {
   data.out3$TIME_ID <- data.out3$DATE_ID -1 +data.out3$HOUR_ID / 24
   
   png(
-    paste0(path.out, "AMF-diurnal-seasonal-example_NEE.png"),
+    paste0(path.out, "AMF-diurnal-seasonal-example_NEE_", target.site[k], ".png"),
     width = 9,
     height = 4,
     units = "in",
@@ -887,6 +887,66 @@ for (k in 1:length(target.site)) {
   abline(v = seq(0, 24, by = 1), lty = 3)
   mtext(side = 2,
         expression(NEE~'('*mu*mole~m^{-2}~s^{-1}*')'),
+        line = 2.5,
+        font = 2,
+        cex = 1.5)
+  mtext(side = 3,
+        "DOY (central date)",
+        line = 2.5,
+        outer = F,
+        cex = 1.5)
+  axis(
+    side = 1,
+    at = seq(0, 23.75, by = 0.25),
+    labels = rep(c(0, 6, 12, 18), 24),
+    cex.axis = 0.75
+  )
+  mtext(side = 1,
+        "Hour of Day",
+        line = 3,
+        outer = F,
+        cex = 1.5)
+  dev.off()
+  
+  png(
+    paste0(path.out, "AMF-diurnal-seasonal-example_USTAR_", target.site[k], ".png"),
+    width = 9,
+    height = 4,
+    units = "in",
+    pointsize = 9,
+    res = 300
+  )
+  par(
+    mar = c(4.5, 4.5, 4.5, 0.5),
+    oma = c(0, 0, 0, 0)
+  )
+  plot(
+    data.work$TIME_ID,
+    data.work$USTAR,
+    las = 1,
+    xaxs = "i",
+    ylab = "",
+    pch = 16,
+    cex = 0.5,
+    col = rgb(0, 0, 0, 0.1),
+    xaxt = "n",
+    xlab = "",
+    xlim = c(0, 24),
+    ylim = c(0, 3)
+  )
+  lines(data.out3$TIME_ID,
+        data.out3$USTAR,
+        lty = 1,
+        col = "red",
+        lwd = 2.5)
+  axis(
+    side = 3,
+    at = seq(0.5, 23.5, by = 1),
+    labels = seq(8, 353, by = 15),
+    cex.axis = 0.75)
+  abline(v = seq(0, 24, by = 1), lty = 3)
+  mtext(side = 2,
+        expression(USTAR~'('*m~s^{-1}*')'),
         line = 2.5,
         font = 2,
         cex = 1.5)

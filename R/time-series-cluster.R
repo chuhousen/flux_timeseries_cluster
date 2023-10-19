@@ -18,17 +18,28 @@ map.in <- paste0(path, "ecoregion\\")
 source(paste0(RDir, "math_utility.R"))
 source(paste0(RDir, "get_ecomap.R"))
 source(paste0(RDir, "cluster_color_panel.R"))
+source(paste0(RDir, "ecoregion_table.R"))
 
 ###### Control parameter
-ver <- "20220701"
+ver <- "20230726"
 
-len.ts <- 24 * 24  ## length of time series
-n.grp <- c(10:30)  # searching window for the n of clusters/branches to keep
+len.ts <- 52 * 12  ## length of time series
+n.grp <- c(15:50)  # searching window for the n of clusters/branches to keep 
+        #c(10:30) for cluster ms
+
+## original colnames from diurnal-seasonal files, revising the colname
+sel.var <- c("FC", "SC", "NEE", "LE", "H",
+             "USTAR", "NETRAD", "TA", "VPD", 
+             "SWC")
+
+drop.ls<-c("FC", "SC")
 
 # target variables to run uni-variate clustering
 target.var.ls <- c("NEE", "LE", "H", "USTAR",
-                   "NETRAD", #"SW_IN", 
-                   "TA", "VPD", "SWC")
+                   "NETRAD", 
+                   "TA", "VPD", "SWC"#,
+                   #"FCH4", "P"
+                   )
 target.lab.ls <- list(expression(NEE~'('*mu*mole~m^{-2}~s^{-1}*')'),
                       expression(LE~'('*W~m^{-2}*')'),
                       expression(H~'('*W~m^{-2}*')'),
@@ -36,7 +47,21 @@ target.lab.ls <- list(expression(NEE~'('*mu*mole~m^{-2}~s^{-1}*')'),
                       expression(NETRAD~'('*W~m^{-2}*')'),
                       expression(TA~'('*degree~C*')'),
                       expression(VPD~'('*kPa*')'),
-                      expression(SWC~'('*'%'*')'))
+                      expression(SWC~'('*'%'*')')#,
+                      #expression(FCH4~'('*nmole~m^{-2}~s^{-1}*')'),
+                      #expression(P~'('*mm*')')
+                      )
+target.rng.ls <- list(seq(-60, 20, length.out = 5),
+                      seq(-130, 520, length.out = 6),
+                      seq(-130, 520, length.out = 6),
+                      seq(0, 1.6, length.out = 5),
+                      seq(-300, 900, length.out = 5),
+                      seq(-40, 40, length.out = 5),
+                      seq(0, 60, length.out = 5),
+                      seq(0, 100, length.out = 5)#,
+                      #seq(-100, 500, length.out = 6),
+                      #seq(0, 1500, length.out = 6)
+                      )
 
 path.in <- paste0(path.in.root, ver, "\\")
 
@@ -55,15 +80,6 @@ full.ls <-
   )
 full.ls <- full.ls[!is.na(full.ls$SITE_ID), ]
 rownames(full.ls) <- paste(full.ls$SITE_ID)
-
-## original colnames from diurnal-seasonal files, revising the colname
-sel.var <- c("FC", "SC", "NEE", "LE", "H",
-             "USTAR", "NETRAD", "TA", "VPD", "WS", 
-             "SWC", "SW_IN" #"LW_IN", "LW_OUT", "G", 
-             #"SW_OUT" #, "TS" 
-)
-drop.ls<-c("FC","SC","WS")
-
 
 for (l in 1:length(sel.var)) {
   if (sel.var[l] %in% drop.ls) {
@@ -313,85 +329,114 @@ for (l1 in 1:length(target.var.ls)) {
     quote = T
   )
   
-  col_pan <- cluster_color_panel(target.var = target.var)
+  #col_pan <- cluster_color_panel(target.var = target.var)
+  col_pan <- data.frame(r = t(col2rgb(rainbow(length(unique(grp.ls)))))[, 1],
+                        g = t(col2rgb(rainbow(length(unique(grp.ls)))))[, 2],
+                        b = t(col2rgb(rainbow(length(unique(grp.ls)))))[, 3],
+                        tmp = unique(grp.ls))
+  colnames(col_pan)[4] <- target.var
+  
   # return cluster ID to full list
   full.ls <- data.frame(full.ls,
                         tmp = NA)
   col_pan_get <- rep(which(is.na(col_pan[, target.var])), nrow(full.ls))
-  
+
   for (i3 in 1:length(grp.ls)) {
     full.ls$tmp[which(full.ls$SITE_ID == paste(names(grp.ls)[i3]))] <- grp.ls[i3]
-    
+
     if(grp.ls[i3] %in% col_pan[, target.var]){
       col_pan_get[i3] <- which(col_pan[, target.var] == grp.ls[i3])
-      
+
     }else if(!is.na(grp.ls[i3])){
       col_pan_get[i3] <- which(col_pan[, target.var] == 99)
-      
+
     }
   }
   colnames(full.ls)[which(colnames(full.ls) == "tmp")] <-
     paste(target.var, "_clust_group", sep = "")
-  
+
   ## plot trees
   png(
     paste0(path.out, "AMF-diurnal-seasonal-cluster-", target.var, "-tree.png"),
+    width = 4.5,
+    height = 12,
+    units = "in",
+    pointsize = 8,
+    res = 300
+  )
+  par(mfrow = c(1, 1), mar = c(0.1, 0.1, 0.1, 0.1), oma= c(0, 0, 0, 0))
+  plot(
+    ape::as.phylo(hc),
+    #type = "unrooted",
+    tip.color = rgb(col_pan$r[col_pan_get],
+                    col_pan$g[col_pan_get],
+                    col_pan$b[col_pan_get], maxColorValue = 255),
+    label.offset = ifelse(l1 == 4, 0.5,15),
+    #show.node.label=T,
+    cex = 0.4
+  )
+  #text(0,0,)
+  dev.off()
+  
+  png(
+    paste0(path.out, "AMF-diurnal-seasonal-cluster-", target.var, "-tree-fan.png"),
     width = 9,
     height = 9,
     units = "in",
     pointsize = 10,
     res = 300
   )
-  par(mfrow = c(1, 1), mar = c(4.5, 4.5, 4.5, 4.5))
+  par(mfrow = c(1, 1), mar = c(4.5, 4.5, 4.5, 4.5), oma= c(0, 0, 0, 0))
   plot(
     ape::as.phylo(hc),
     type = "fan",
-    tip.color = rgb(col_pan$r[col_pan_get], 
-                    col_pan$g[col_pan_get], 
+    tip.color = rgb(col_pan$r[col_pan_get],
+                    col_pan$g[col_pan_get],
                     col_pan$b[col_pan_get], maxColorValue = 255),
-    label.offset = 0.5,
+    label.offset = ifelse(l1 == 4, 0.5,15),
     #show.node.label=T,
-    cex = 0.7
+    cex = 0.65
   )
   #text(0,0,)
   dev.off()
-  
+
   ## plot grouped diurnal-seasonal plots
   png(
     paste0(path.out, "AMF-diurnal-seasonal-cluster-", target.var, ".png"),
-    width = 8,
-    height = 6.5,
+    width = 7,
+    height = 0.5 + ceiling(n.grp.opt / 3) * 8.5 / 9,
     units = "in",
     pointsize = 9,
     res = 300
   )
-  
+
   par(
-    mfrow = c(5, ceiling(n.grp.opt / 5)),
-    mar = c(0, 0, 0, 0),
-    oma = c(1, 6.5, 4, 1)
+    mfrow = c(ceiling(n.grp.opt / 3), 3),
+    mar = c(0.2, 0.2, 0.2, 0.2),
+    oma = c(3.5, 5.5, 1, 1)
   )
-  
+
   # sort by number of sites
   grp.ls.sort <- as.numeric(rev(names(sort(table(grp.ls)))))
-  
+
   for (j2 in 1:n.grp.opt) {
     plot(
       0,
       0,
-      xlim = c(-20, len.ts + 20),
-      ylim = range(data.pre),
+      xlim = c(0, len.ts),
+      ylim = c(target.rng.ls[[l1]][1],
+               target.rng.ls[[l1]][length(target.rng.ls[[l1]])]),
       type = "n",
       xlab = "",
       ylab = "",
       xaxt = "n",
       yaxt = "n"
     )
-    
+
     data.pre.sub <- as.data.frame(data.pre[, which(grp.ls == grp.ls.sort[j2])])
-    
+
     data.pre.sub.mean <- apply(data.pre.sub, 1, na.mean)
-    
+
     for (j1 in 1:ncol(data.pre.sub)) {
       lines(data.pre.sub[, j1],
             col = "grey",
@@ -399,91 +444,61 @@ for (l1 in 1:length(target.var.ls)) {
     }
     if(ncol(data.pre.sub) < 5){
       legend(
-        -25,
-        range(data.pre)[2],
+        0,
+        target.rng.ls[[l1]][length(target.rng.ls[[l1]])],
         paste(names(grp.ls[grp.ls == grp.ls.sort[j2]])),
         col = "darkgrey",
         cex = 1,
-        bty = "n",
-        ncol = ceiling(ncol(data.pre.sub) / 22)
-      )  
+        bty = "n"
+      )
     }
-    if ((j2 - 1) == floor((j2 - 1) / ceiling(n.grp.opt / 5)) * ceiling(n.grp.opt /
-                                                                       5)) {
-      if(target.var == "NEE"){
-        axis(2, seq(-50, 25, length.out = 4),
-        las = 2)
-      }else{
-        axis(
-          2,
-          at = seq(range(data.pre)[1],
-                   range(data.pre)[2],
-                   length.out = 4),
-          labels = round(seq(
-            range(data.pre)[1],
-            range(data.pre)[2],
-            length.out = 4
-          ),
-          digits = 0),
-          las = 2
-        )        
-      }
+    if (j2 - 1 == ceiling((j2 - 1 ) / 3) * 3 ) {
+      axis(2, target.rng.ls[[l1]],las = 2)
     }
-    # lines(data.pre.sub.mean,
-    #               col = "black",
-    #               lwd = 1.5)
+
     if (ncol(data.pre.sub) > 1)
       if (grp.ls.sort[j2] %in% col_pan[, target.var]) {
         lines(
           data.pre.sub.mean,
           col = rgb(col_pan$r[which(col_pan[, target.var] == grp.ls.sort[j2])],
                     col_pan$g[which(col_pan[, target.var] == grp.ls.sort[j2])],
-                    col_pan$b[which(col_pan[, target.var] == grp.ls.sort[j2])], 
+                    col_pan$b[which(col_pan[, target.var] == grp.ls.sort[j2])],
                     maxColorValue = 255),
           lwd = 2
         )
-        
-      # } else{
-      #   lines(
-      #     data.pre.sub.mean,
-      #     col = rgb(col_pan$r[which(col_pan[, target.var] == 99)],
-      #               col_pan$g[which(col_pan[, target.var] == 99)],
-      #               col_pan$b[which(col_pan[, target.var] == 99)],
-      #               maxColorValue = 255),
-      #     lwd = 2
-      #   )
-        
       }
-    
-    
+
+    if(j2 >= n.grp.opt - 2){
+      axis(1, at = seq(0, 24 * 24, by = 24), labels = FALSE)
+    }
   }
   mtext(
-    side = 3,
-    "Date-Hour",
+    side = 1,
+    "Hour / Window",
     outer = T,
     line = 1.5,
-    cex = 1.5
+    cex = 1.2
   )
-  
+
   mtext(
     side = 2,
     target.lab.ls[[l1]],
     outer = T,
-    line = 3.2,
-    cex = 1.5
+    line = 3,
+    cex = 1.2
   )
 
   dev.off()
-  
+
   ### subgroup plot
   sub.grp.ls <- as.numeric(names(table(grp.ls))[table(grp.ls) > 5])
-  
+
   if (length(sub.grp.ls) > 0) {
     for (i in 1:length(sub.grp.ls)) {
       data.pre.sub <- as.data.frame(data.pre[, which(grp.ls == sub.grp.ls[i])])
       data.pre.sub.name <- colnames(data.pre.sub)
       data.pre.sub.mean <- apply(data.pre.sub, 1, na.mean)
-      
+
       if (ncol(data.pre.sub) <= 25) {
         data.pre.sub.ls <- c(1:ncol(data.pre.sub))
       } else{
@@ -494,7 +509,7 @@ for (l1 in 1:length(target.var.ls)) {
         data.pre.sub.ls[data.pre.sub.ls < 1] <- 1
         data.pre.sub.ls[data.pre.sub.ls > 25] <- 25
       }
-      
+
       png(
         paste0(path.out, "AMF-diurnal-seasonal-cluster-", target.var, "_subgroup_", sub.grp.ls[i], ".png"),
         width = 11,
@@ -508,7 +523,7 @@ for (l1 in 1:length(target.var.ls)) {
         mar = c(0, 0, 0, 0),
         oma = c(3, 5, 0.5, 0.5)
       )
-      
+
       for (j in 1:min(c(max(data.pre.sub.ls), 25))) {
         plot(
           0,
@@ -521,14 +536,14 @@ for (l1 in 1:length(target.var.ls)) {
           yaxt = "n",
           xlab = ""
         )
-        
+
         lines(data.pre.sub.mean, col = "black", lwd = 1.5)
-        
+
         data.pre.sub.sub <-
           as.data.frame(data.pre.sub[, which(data.pre.sub.ls == j)])
         colnames(data.pre.sub.sub) <-
           data.pre.sub.name[which(data.pre.sub.ls == j)]
-        
+
         for (j1 in 1:ncol(data.pre.sub.sub)) {
           lines(data.pre.sub.sub[, j1],
                 col = rainbow(ncol(data.pre.sub.sub))[j1])
@@ -550,7 +565,7 @@ for (l1 in 1:length(target.var.ls)) {
           ), las = 2)
         }
       }
-      
+
       mtext(
         side = 1,
         "Date-Hour",

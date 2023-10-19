@@ -1,0 +1,528 @@
+<metadata>
+	<idinfo>
+		<keywords>
+			<theme>
+				<themekt>ISO 19115 Topic Category</themekt>
+				<themekey>biota</themekey>
+				<themekey>boundaries</themekey>
+				<themekey>environment</themekey>
+				<themekey>location</themekey>
+			</theme>
+			<theme>
+				<themekt>EPA GIS Keyword Thesaurus</themekt>
+				<themekey>Biology</themekey>
+				<themekey>Conservation</themekey>
+				<themekey>Ecology</themekey>
+				<themekey>Ecosystem</themekey>
+				<themekey>Land</themekey>
+				<themekey>Natural Resources</themekey>
+			</theme>
+			<place>
+				<placekt>None</placekt>
+			</place>
+			<theme/>
+		</keywords>
+		<citation>
+			<citeinfo>
+				<origin>US Environmental Protection Agency</origin>
+				<title>Level III Ecoregions of Central and South America</title>
+				<pubinfo>
+					<publish>U.S. EPA Office of Research and Development (ORD) - National Health and Environmental Effects Research Laboratory (NHEERL)</publish>
+					<pubplace>Corvallis, OR</pubplace>
+				</pubinfo>
+				<pubdate>20111222</pubdate>
+				<onlink>ftp://ftp.epa.gov/wed/ecoregions/sa/sa_eco.zip</onlink>
+				<onlink>http://edg.epa.gov</onlink>
+			</citeinfo>
+		</citation>
+		<descript>
+			<abstract>The USGS EROS Data Center and the U.S. EPA NHEERL-WED initiated this project to develop an ecological classification and ecoregion map for the Western Hemisphere (North and South America) that is consistent with recent U.S. EPA and North American ecoregion frameworks (CEC 1997; U.S. EPA 1998; Gallant et al. 1995).  This coverage includes a first approximation of ecological regions of Central and South America that is relatively consistent with the purpose and methods of those already completed frameworks for North America.  Designed to serve as a spatial framework for environmental resource assessment and management, ecoregions denote areas of general similarity in ecosystems and in the type, quality, and quantity of environmental resources.
+
+This initial delineation of ecoregions was based on analysis of multiple types and scales of thematic maps including geology, physiography, soils, potential and existing vegetation, climate, landcover and agricultural uses, other ecological frameworks, and from other regional descriptive documents.
+Maps and information of environmental characteristics of Central and South America and the Caribbean were collected from several U.S. university libraries, the EROS Data Center, the Library of Congress, the USGS Cartographic Information Center in Reston, and the U.S. State Department map library.  In addition to the variety of information from these thematic maps and descriptive texts, regional patterns were also assessed from the global land cover characteristics database obtained from 1-km Advanced Very High Resolution Radiometer (AVHRR) data (Loveland and Belward 1997; Loveland et al. 1998).  More detail on the philosophy, methodology, and references used in the compilation of these ecoregions can be found in Omernik (1995) and Griffith et al. (1998).
+
+	Literature cited:
+	Commission for Environmental Cooperation. 1997. Ecological regions of North America: Towards a common perspective. Commission for Environmental Cooperation. Montreal, Quebec, Canada. 71p.
+
+	Gallant, A.L., E.F. Binnian, J.M. Omernik, and M.B. Shasby. 1995. Ecoregions of Alaska. U.S. Geological Survey Professional Paper 1567. 73p.
+
+	Griffith, G.E., J.M. Omernik, and S.H. Azevedo. 1998. Ecological classification of the Western Hemisphere. U.S. Environmental Protection Agency, National Health and Environmental Effects Research Laboratory, Corvallis, Oregon. 47p. 
+
+	Loveland, T.R. and Belward, A.S., 1997. The IGBP-DIS Global 1 km Land Cover Data Set, DISCover First Results.  International Journal of Remote Sensing 18(15): 3289-3295.
+
+	Loveland, T.R., D.O. Ohlen, J.F. Brown, B.C. Reed, Z. Zhu, J.W. Merchant, and L. Yang. 1998. Western hemisphere land cover - progress toward a global land cover characteristics database. In: Proceedings, Pecora 13, Human Interactions with the Environment: Perspectives From Space.
+
+	Omernik, J.M. 1995. Ecoregions: A spatial framework for environmental management.  In: Biological Assessment and Criteria: Tools for Water Resource Planning and Decision Making.  W.S. Davis and T.P. Simon (eds.). Lewis Publishers, Boca Raton, FL. pp. 49-62.
+
+	U.S. Environmental Protection Agency. 1998. Level III Ecoregions of the Continental United States, Map M-1 (revision of Omernik, 1987). National Health and Environmental Effects Research Laboratory, Corvallis, Oregon.
+			</abstract>
+			<purpose>Ecoregion maps assist managers of aquatic and terrestrial resources to understand the regional patterns of the realistically attainable quality of these resources.</purpose>
+			<supplinf>Comments and questions regarding the Ecoregions of Central and South America should be addressed to Glenn Griffith, USGS, c/o US EPA., 200 SW 35th Street, Corvallis, OR 97333, (541)-754-4465, email:griffith.glenn@epa.gov Alternate: James Omernik, USGS, c/o US EPA, 200 SW 35th Street, Corvallis, OR 97333, (541)-754-4458, email:omernik.james@epa.gov. 
+
+Electronic versions of ecoregion maps and posters, as well as other ecoregion resources are available at: http://www.epa.gov/wed/pages/ecoregions.htm.
+
+Ecoregions were digitized at 1:5,000,000 or smaller scales and are intended for large geographic extents (i.e. states/provinces, multiple counties, or river basins).  Use for smaller areas, is not recommended.</supplinf>
+		</descript>
+		<timeperd>
+			<current>Publication date</current>
+			<timeinfo>
+				<sngdate>
+					<caldate>20120502</caldate>
+				</sngdate>
+			</timeinfo>
+		</timeperd>
+		<status>
+			<progress>Complete</progress>
+			<update>As needed</update>
+		</status>
+		<accconst>None.</accconst>
+		<useconst>None. Please check sources, scale, accuracy, currentness and other available information. Please confirm that you are using the most recent copy of both data and metadata.  Acknowledgement of the EPA would be appreciated.</useconst>
+		<spdom>
+			<bounding>
+				<westbc>-112.324122</westbc>
+				<eastbc>-23.246651</eastbc>
+				<northbc>30.311777</northbc>
+				<southbc>-56.114264</southbc>
+			</bounding>
+		</spdom>
+		<secinfo>
+			<secsys>FIPS Pub 199</secsys>
+			<secclass>No Confidentiality</secclass>
+			<sechandl>Standard Technical Controls</sechandl>
+		</secinfo>
+		<ptcontac>
+			<cntinfo>
+				<cntperp>
+					<cntorg>U.S. Environmental Protection Agency, Office of Research and Development, National Health and Environmental Effects Research Laboratory (NHEERL)</cntorg>
+					<cntper>Marc Weber</cntper>
+				</cntperp>
+				<cntpos>GIS Analyst</cntpos>
+				<cntaddr>
+					<addrtype>mailing address</addrtype>
+					<address>200 S.W. 35th Street</address>
+					<city>Corvallis</city>
+					<state>OR</state>
+					<postal>97333</postal>
+				</cntaddr>
+				<cntvoice>(541) 754-4469</cntvoice>
+				<cntemail>weber.marc@epa.gov</cntemail>
+				<cntinst>http://www.epa.gov/nheerl/</cntinst>
+			</cntinfo>
+		</ptcontac>
+	</idinfo>
+	<dataqual>
+		<logic>Tests for integrity have not been performed.</logic>
+		<complete>Features represented have not been tested for completeness</complete>
+		<posacc>
+			<horizpa>
+				<horizpar>Data were collected using methods that have unknown accuracy (EPA National Geospatial Data Policy [NGDP] Accuracy Tier 10). For more information, please see EPA's NGDP at http://epa.gov/geospatial/policies.html)</horizpar>
+			</horizpa>
+		</posacc>
+		<lineage>
+			<procstep>
+				<procdate>1998</procdate>
+				<procdesc>Ecoregions delineated on 1:5,000,000 base maps are digitized.</procdesc>
+			</procstep>
+			<procstep>
+				<procdate>1998</procdate>
+				<procdesc>Topology established, errors checked and repaired as needed.</procdesc>
+			</procstep>
+			<procstep>
+				<procdate>1998</procdate>
+				<procdesc>Attributes added.</procdesc>
+			</procstep>
+			<procstep>
+				<procdate>1998</procdate>
+				<procdesc>QA.</procdesc>
+			</procstep>
+			<procstep>
+				<procdate>2012</procdate>
+				<procdesc>Coverage projected from Bipolar Oblique to Albers.</procdesc>
+			</procstep>
+			<procstep>
+				<procdate>2012</procdate>
+				<procdesc>Coverage converted to file geodatase and shapefile.</procdesc>
+			</procstep>
+			<procstep>
+				<procdate>21012</procdate>
+				<procdesc>Metadata.</procdesc>
+			</procstep>
+		</lineage>
+	</dataqual>
+	<spdoinfo>
+		<direct>Vector</direct>
+		<ptvctinf>
+			<sdtsterm>
+				<sdtstype>GT-polygon composed of chains</sdtstype>
+				<ptvctcnt>3546</ptvctcnt>
+			</sdtsterm>
+		</ptvctinf>
+	</spdoinfo>
+	<spref>
+		<horizsys>
+			<planar>
+				<mapproj>
+					<mapprojn>International_1967_Albers</mapprojn>
+					<albers>
+						<stdparll>-5.000000</stdparll>
+						<stdparll>-42.000000</stdparll>
+						<longcm>-60.000000</longcm>
+						<latprjo>-32.000000</latprjo>
+						<feast>0.0</feast>
+						<fnorth>0.0</fnorth>
+					</albers>
+				</mapproj>
+				<planci>
+					<plance>coordinate pair</plance>
+					<coordrep>
+						<absres>0.0000000037527980722984474</absres>
+						<ordres>0.0000000037527980722984474</ordres>
+					</coordrep>
+					<plandu>Meter</plandu>
+				</planci>
+			</planar>
+			<geodetic>
+				<horizdn>D International 1967</horizdn>
+				<ellips>International 1967</ellips>
+				<semiaxis>6378137.0</semiaxis>
+				<denflat>298.257222101</denflat>
+			</geodetic>
+		</horizsys>
+	</spref>
+	<eainfo>
+		<detailed>
+			<enttyp>
+				<enttypl>sa_eco</enttypl>
+				<enttypd>shapefile name</enttypd>
+				<enttypds>USEPA and USGS EROS Data Center</enttypds>
+			</enttyp>
+			<attr>
+				<attrlabl>FID</attrlabl>
+				<attrdef>Internal feature number.</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<rdom>
+						<rdommin>0</rdommin>
+						<rdommax>3545</rdommax>
+					</rdom>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>Shape</attrlabl>
+				<attrdef>Feature geometry.</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Coordinates defining the features.</udom>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>AREA</attrlabl>
+				<attrdef>remnant Area field from coverage</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Positive real numbers that are automatically generated.</udom>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>PERIMETER</attrlabl>
+				<attrdef>Remnant perimeter field from coverage.</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Positive real numbers that are automatically generated.</udom>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>SA_ECO_</attrlabl>
+				<attrdef>remnant identifier from coverage</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Sequential unique whole numbers that are automatically generated.</udom>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>SA_ECO_ID</attrlabl>
+				<attrdef>remnant identifier from coverage</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Sequential unique whole numbers that are automatically generated.</udom>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>LEVEL3</attrlabl>
+				<attrdef>Code for Level II Ecoregions of Central and South America</attrdef>
+				<attrdefs>USEPA/USGS EROS Data Center</attrdefs>
+				<attrdomv>
+					<udom>unique code</udom>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>LEVEL2</attrlabl>
+				<attrdef>Code for Level II Ecoregions of Central and South America</attrdef>
+				<attrdefs>USEPA/USGS EROS Data Center</attrdefs>
+				<attrdomv>
+					<udom>unique code</udom>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>LEVEL1</attrlabl>
+				<attrdef>Code for Level I Ecoregions of Central and South America</attrdef>
+				<attrdefs>USEPA/USGS EROS Data Center</attrdefs>
+				<attrdomv>
+					<udom>unique code</udom>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>Shape_Leng</attrlabl>
+				<attrdef>Length of feature</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Positive real numbers that are automatically generated.</udom>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>Shape_Area</attrlabl>
+				<attrdef>Area of feature in internal units squared.</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Positive real numbers that are automatically generated.</udom>
+				</attrdomv>
+			</attr>
+		</detailed>
+		<overview>
+			<eaover>Ecoregions for Central and South America are designed to be relatively consistent with the North America and United States frameworks.  They are hierarchical with Level I being the broadest classification and Level III being the most detailed.  Because of this hierarchy, Level III features include appropriate codes and names for Levels II and I and Level II retains Level I information.
+
+Ecoregion Codes and Names:
+
+	13. Temperate Sierras
+		13.6 Central American Sierra Madre and Chiapas Highlands
+			13.6.1 Northern Central American Highlands
+			13.6.2 Central American Sierra Madre
+			13.6.4 Altos de Chiapas con bosque mesoófilo
+
+	14. Mexican Tropical Dry Forests
+		14.4 Interior Depressions
+			14.4.2 Chiapas Depression
+			14.4.3 Motagua Valley
+
+	15. Middle American Tropical Wet Forests
+		15.1 Humid Gulf of Mexico Coastal Plains and Hills 
+			15.1.4 Humid Gulf of Mexico and Southern Petén Hills
+			15.1.5 Maya Mountains
+		15.2 Yucatan Peninsula Plains and Hills
+			15.2.1 Quintana Roo / Belizean Wet Coastal Lowland
+			15.2.2 Yucatán Karst Plains 
+			15.2.3 Central Yucatán / Petén Hills and Karst Plains
+		15.6 Soconusco / Guatemalan Coastal Plain and Hills
+			15.6.2 Soconusco / Guatemalan Coastal Plain
+			15.6.3 Soconusco Hills / Guatemalan Piedmont
+		15.7 Central American Isthmus
+			15.7.1 Pacific Volcanic Lowlands
+			15.7.2 Caribbean Coastal Plains and Hills
+			15.7.3 Miskito Lowland Pine Savanna
+			15.7.4 Guanacaste / Central Volcanic Uplands
+			15.7.5 Talamanca and Panama Central Cordilleras
+			15.7.6 Costa Rica-Panama Pacific Plains and Hills
+
+	16. West Indies
+		16.1 Bahamas
+			16.1.1 Bahamas
+		16.2 Greater Antilles
+			16.2.1 Cuba
+			16.2.2 Mountainous Greater Antilles
+		16.3 Lesser Antilles
+			16.3.1 Limestone Low Islands
+	1		6.3.2 Volcanic High Islands
+
+	17. Northern Andes
+		17.1 Caribe / Pacific Lowland Plains and Hills
+			17.1.1 Sinú / Magdalena Dry Plains
+			17.1.2 Magdalena Wet Plains
+			17.1.3 Maracaibo Lowlands 
+			17.1.4 Guajira/Paraguaná Peninsulas
+			17.1.5 Chichiriviche Coastal Plain
+			17.1.6 Unare Plains 
+			17.1.7 Pacific Plains and Hills
+			17.1.8 Guayas-Tumbes-Piura Dry Hills
+		17.2 Venezuelan Coastal Andes
+			17.2.1 Segovia Highlands
+			17.2.2 Central Coastal Cordillera
+			17.2.3 Eastern Coastal Cordillera
+		17.3 Northern Andean Highlands
+			17.3.1 Sierra Nevada de Santa Marta
+			17.3.2 Colombian / Venezuelan High Cordilleras 
+			17.3.3 Paramo / Alto Andina
+			17.3.4 Upper Magdalena Valley
+			17.3.5 Upper Cauca Valley
+			17.3.6 Pacific Western Cordillera Montane Forest
+			17.3.7 Eastern Cordillera Montane Forest
+			17.3.8 S. Ecuador / N. Peru Transitional High Andes
+
+	18. Central Andes
+		18.1 Central High Andes/Puna
+			18.1.1 High Andes / Humid Puna
+			18.1.2 Dry Puna / Puna de Atacama
+			18.1.3 Southern Central Andes
+		18.2 Altiplano
+			18.2.1 Titicaca / Northern Altiplano
+			18.2.2 Southern Arid Altiplano
+		18.3 Yungas
+			18.3.1 Northern Yungas 
+			18.3.2 Southern Yungas
+		18.4 Peruvian/Atacaman Deserts
+			18.4.1 Northern Peruvian Desert
+			18.4.2 Garua-Loma Desert
+			18.4.3 Northern Chilean Desert
+	1		8.4.4 Transitional Subdesert Matoral
+
+	19. Southern Andes
+    1	9.1 Mediterranean Chile
+			19.1.1 Coastal Ranges
+			19.1.2 Llano Central
+		19.2 Valdivian Forested Hills and Mountains
+			19.2.1 Valdivian Coastal Range 
+			19.2.2 Central Depression
+			19.2.3 Valdivian High Andes
+		19.3 Fuegian Fiords and Forests
+			19.3.1 Magellanic Moorland and Rainforest
+			19.3.2 Fuegian High Andes / Ice Caps
+		19.4 Subantarctic Islands
+			19.4.1 Falklands / Islas Malvinas
+
+	20. Amazonian-Orinocan Lowland
+		20.1 Orinoco Llanos
+			20.1.1 Piedmont 
+			20.1.2 High Plains or Dissected Plains 
+			20.1.3 Alluvial Overflow Plains / Wet Plains 
+		20.2 Amazon Irregular Plains and Piedmont 
+			20.2.1 Colombia Rock Mesa Amazon
+			20.2.2 Napo / Putamayo Moist Forests
+			20.2.3 Ucayali / Marañon Lowland
+			20.2.4 Southwestern Amazonian Irregular Plains
+			20.2.5 Llanos de Mojos / Beni Savanna
+		20.3 Guianan Shield Moist Forests 
+			20.3.1 Upper Rio Negro / Campinas area
+			20.3.2 Boa Vista Depression / Rupununi Savanna
+			20.3.3 Guianan Forested Plains and Hills
+			20.3.4 Amapá / Roraima Plains and Tablelands
+		20.4 Amazon and Coastal Lowlands
+			20.4.1 Amazon Flat Plains
+			20.4.2 Várzea / Igapó 
+			20.4.3 Amazon Estuary and Coastal Savannas
+			20.4.4 Guianan Coastal Lowland
+		20.5 Brazilian Shield Moist Forests
+			20.5.1 Gurupi Plains and Low Tablelands
+			20.5.2 Amazon Upland Irregular Plains
+			20.5.3 Mixed Forest Plains and Tablelands
+			20.5.4 Upper Xingu Depression
+
+	21. Eastern Highlands
+		21.1 Guianan Highlands
+			21.1.1 Guianan Uplands and Tepuis
+			21.1.2 Roraima and Grand Savannas
+			21.1.3 Suriname / Guyana Low Mountains
+		21.2 Cerrados
+			21.2.1 Northern Maranhão Plains
+			21.2.2 Northern Piauí Plains
+			21.2.3 Northeastern Cerrado
+			21.2.4 Araguaia Depression
+			21.2.5 Tocantins Hills and Tablelands
+			21.2.6 Espinhaço / Diamantina Hills and Low Mountains
+			21.2.7 Mato Grosso Savanna Tablelands
+			21.2.8 Upper Paraguai / Guapore Plains and Hills
+			21.2.9 Pantanal
+			21.2.10 Chiquitos-Velasco Forested Hills and Plains
+			21.2.11 Southern Cerrado Tablelands
+		21.3 Caatinga
+			21.3.1 Northeastern Caatinga
+			21.3.2 Western Caatinga
+		21.4 Atlantic Forests 
+			21.4.1 Agreste / Caatinga Transition
+			21.4.2 Brazilian Atlantic Coastal Forests
+			21.4.3 Eastern Inland Atlantic Mixed Forests
+			21.4.4 Western Inland Atlantic Mixed Forests
+			21.4.5 Araucaria Tablelands
+
+	22. Gran Chaco
+		22.1 Western Dry Chaco
+			22.1.1 Northern Dry Chaco
+			22.1.2 Southern Dry Chaco
+			22.1.3 Sierras of Cordoba and San Luis
+			22.1.4 Pampa Seca / Espinal
+		22.2 Humid Chaco
+			22.2.1 Northern Humid Chaco
+			22.2.2 Southern Humid Chaco
+
+	23. Pampas
+		23.1 Northern Rolling Pampas
+			23.1.1 Campos / Northern Pampas
+			23.1.2 Brazil / Uruguay Coastal Pampa
+			23.1.3 Southern Uruguay Lowland
+		23.2 Southern Flat Pampas
+			23.2.1 La Plata / Uruguay Lowland 
+			23.2.2 Inland Pampa
+			23.2.3 Low Argentine Pampa
+			23.2.4 Southern Pampa
+
+	24. Monte-Patagonian
+		24.1 Monte
+			24.1.1 Monte
+		24.2 Patagonian Tablelands
+			24.2.1 Northern Patagonia
+			24.2.2 Southern Patagonia 
+			24.2.3 Magellan Grasslands
+
+	25. Galapagos
+
+			</eaover>
+			<eadetcit>Griffith, G.E., J.M. Omernik, and S.H. Azevedo. 1998. Ecological classification of the Western Hemisphere. U.S. Environmental Protection Agency, National Health and Environmental Effects Research Laboratory, Corvallis, Oregon. 47p.</eadetcit>
+		</overview>
+	</eainfo>
+	<distinfo>
+		<resdesc>Downloadable Data</resdesc>
+		<distliab>Although these data have been processed successfully on a computer system at the Environmental Protection Agency, no warranty expressed or implied is made regarding the accuracy or utility of the data on any other system or for general or scientific purposes, nor shall the act of distribution constitute any such warranty. It is also strongly recommended that careful attention be paid to the contents of the metadata file associated with these data to evaluate data set limitations, restrictions or intended use. The U.S. Environmental Protection Agency shall not be held liable for improper or incorrect use of the data described and/or contained herein.</distliab>
+		<distrib>
+			<cntinfo>
+				<cntperp>
+					<cntorg>U.S. Environmental Protection Agency, Office of Research and Development, National Health and Environmental Effects Research Laboratory (NHEERL)</cntorg>
+					<cntper>Marc Weber</cntper>
+				</cntperp>
+				<cntpos>GIS Analyst</cntpos>
+				<cntaddr>
+					<addrtype>mailing address</addrtype>
+					<address>200 S.W. 35th Street</address>
+					<city>Corvallis</city>
+					<state>OR</state>
+					<postal>97333</postal>
+				</cntaddr>
+				<cntvoice>(541) 754-4469</cntvoice>
+				<cntemail>weber.marc@epa.gov</cntemail>
+				<cntinst>http://www.epa.gov/nheerl/</cntinst>
+			</cntinfo>
+		</distrib>
+	</distinfo>
+	<metainfo>
+		<metd>20120502</metd>
+		<metfrd>20160502</metfrd>
+		<metstdn>FGDC Content Standard for Digital Geospatial Metadata</metstdn>
+		<metstdv>FGDC-STD-001-1998</metstdv>
+		<metc>
+			<cntinfo>
+				<cntperp>
+					<cntorg>U.S. Environmental Protection Agency, Office of Research and Development, National Health and Environmental Effects Research Laboratory (NHEERL)</cntorg>
+					<cntper>Marc Weber</cntper>
+				</cntperp>
+				<cntpos>GIS Analyst</cntpos>
+				<cntaddr>
+					<addrtype>mailing address</addrtype>
+					<address>200 S.W. 35th Street</address>
+					<city>Corvallis</city>
+					<state>OR</state>
+					<postal>97333</postal>
+				</cntaddr>
+				<cntvoice>(541) 754-4469</cntvoice>
+				<cntemail>weber.marc@epa.gov</cntemail>
+				<cntinst>http://www.epa.gov/nheerl/</cntinst>
+			</cntinfo>
+		</metc>
+	</metainfo>
+</metadata>

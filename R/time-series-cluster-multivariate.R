@@ -310,7 +310,7 @@ for (l1 in 1:length(target.var.ls)) {
     tip.color = rainbow(n.grp.opt)[grp.ls],
     label.offset = 0.5,
     #show.node.label=T,
-    cex = 0.7
+    cex = 0.6
   )
   #text(0,0,)
   dev.off()

@@ -21,7 +21,7 @@ work_on_zm_list3<-function(work.path,    ## where a previous version of zm list 
   
   zm.list <- badm.extract(data.in = data.in, sel.grp = "GRP_VAR_INFO")
   
-  zm.list<-zm.list[substr(zm.list$SITE_ID,1,2) %in% c("CA","US", "MX", "BR", "AR", "CR"),]
+  zm.list<-zm.list[substr(zm.list$SITE_ID,1,2) %in% c("CA", "US", "MX", "BR", "AR", "CR"),]
   zm.list<-zm.list[zm.list$VAR_INFO_VARNAME %in% c("USTAR"),]
   
   zm.list$end<-NA
@@ -64,7 +64,8 @@ work_on_zm_list3<-function(work.path,    ## where a previous version of zm list 
                                    "CA-DBB","US-Uaf","US-Fcr",
                                    "US-ALQ","US-MtB","US-Snf",
                                    "US-xCP","US-xDL","US-xKA","US-xRM","US-xWD",
-                                   "US-Wpp","CA-Ca3","US-Vcp","CA-SJ2","US-Bar"),  
+                                   "US-Wpp","CA-Ca3","US-Vcp","CA-SJ2","US-Bar",
+                                   "US-CGG","CL-SDF","US-Cst"),  
                             start="all",
                             end="all",
                             htower=c(3.77,3.77,4.15,3.4,3.6,
@@ -84,7 +85,8 @@ work_on_zm_list3<-function(work.path,    ## where a previous version of zm list 
                                      1.8,6,1.85,
                                      2.4,29.8,3.9,
                                      9.32,42.43,8.41,25.35,8.58,
-                                     21,12,23.8,2,24.5))
+                                     21,12,23.8,2,24.5,
+                                     3.65,42,37))
   
   zm.list.new2<-data.frame(site=c("US-NC4","US-NC4",
                                   "US-NC3","US-NC3","US-NC3",
@@ -116,14 +118,14 @@ work_on_zm_list3<-function(work.path,    ## where a previous version of zm list 
                                        "US-BZS", "US-CMW", "US-CS2", "US-Cwt", "US-HBK",
                                        "US-LPH", "US-LS2", "US-SRS", "US-BZB",
                                        "US-CZ2", "US-CZ3", "US-CZ4", "US-SCf", "MX-Ray",
-                                       "US-MWF"),
+                                       "US-MWF", "CR-SoC", "US-SSH"),
                              start = "all",
                              end = "all",
                              htower = c(20, 26, 42, 14.7, 13,
                                         2.5, 14, 31, 37, 33.2,
                                         20.5, 8, 7, 2.5,
                                         NA, NA, NA, NA, NA,
-                                        33))
+                                        33, 33, 30))
   
   zm.list.new12 <- data.frame(site = c("US-Ha2"),
                               start = c("all", 200611010000, 201406040000),
