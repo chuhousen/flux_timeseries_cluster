@@ -3,7 +3,7 @@
 .Rhistory
 .RData
 .Ruserdata
-diurnal-seasonality/*
-cluster-output/*
-variable-year/*
+diurnal-seasonality/
+cluster-output/
+variable-year/
 .gitignore
