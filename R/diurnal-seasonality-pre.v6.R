@@ -45,7 +45,7 @@ source(paste0(RDir, "get_utc_offset.R"))
 sink.log.to.file <- F     # Write warning/error messages to file
 
 ###   Create a version sub directory
-ver <- "20231019-24h15d"     # for storing outputs
+ver <- "20231019-8h5d"     # for storing outputs
 
 if (!dir.exists(paste(path.out.root, ver, sep = "")))
   dir.create(paste(path.out.root, ver, sep = ""))
@@ -62,10 +62,8 @@ sel.var <- c("FC", "SC", "NEE", "LE", "H", "USTAR",
              "NETRAD", "TA", "VPD", "SWC")
 
 ### specify the sites don't run
-drop.ls <- c("US-GBT", "US-PFa" ## unique site
-             #"US-CZ2", "US-CZ3", "US-CZ4", "US-SCf", ## forest sites with no SC nor EC height info
-             #"CA-NS8", ## forest sites with no SC nor EC height info
-             #"MX-Ray"
+drop.ls <- c("US-GBT", "US-PFa", ## unique site
+             "CR-Lse" # no flux
               ) 
 
 ## following sites have better coverage in FC+SC than NEE. Use FC + SC instead
@@ -75,16 +73,17 @@ skip.nee.ls <- c("PR-xGU", "PR-xLA", "US-Ivo", "US-xBA", "US-xBR",
 skip.sc.ls <- c("US-Ivo", "US-xNW", "US-xBA")
 
 ### define the window for calculating diurnal-seasonal summary
-l.wd <- 15                    # length of days
+l.wd <- 5                    # length of days
 n.wd <- floor(365 / l.wd)    # number of windows per year
-min.year.to.run <- 3         # minimum data record to include the site
+min.year.to.run <- 3         # minimum data record to include the site, except the follows
+border.year.site <- c("US-CdM", "US-LA2", "AR-TF1", "AR-TF2", "US-INe", "US-MWA", "US-MWW") 
 forest.igbp.ls <- c("EBF", "ENF", "DBF", "DNF", "MF", "WSA")
 
 ## output time resolution
 #   org: maintain original time resolution (HH/HR) in generating diurnal stat
 #   aggregate:  convert half-hour resolution to hourly
 hr.res <-  "aggregate"
-out.res <- 1 # output resolution, in hours
+out.res <- 3 # output resolution, in hours
 
 ## list of sites need change VPD unit, other than #-1 version
 VPD.need.correct <- NULL
@@ -418,9 +417,10 @@ for (k in 1:length(target.site)) {
     print("[Error] can't find both TIMESTAMP columns")
   }
   
-  full.ls$data_year_length[k] <- floor(nrow(data.work) / d.hr.org / 365)
+  full.ls$data_year_length[k] <- round(nrow(data.work) / d.hr.org / 365, digits = 1)
   
-  if(full.ls$data_year_length[k] < min.year.to.run){
+  if(full.ls$data_year_length[k] < min.year.to.run &
+     !full.ls$SITE_ID[k] %in% border.year.site){
     
     print(paste("[Warning] Skip the site as less than", min.year.to.run , "year record"))
     
@@ -989,7 +989,7 @@ hist(apply(full.ls[, c("NEE_F", "LE_F", "H_F", "USTAR_F",
 select.ls <-
   full.ls[apply(full.ls[, c("NETRAD_F", "VPD_F", "TA_F", "SWC_F", 
                             "NEE_F", "LE_F", "H_F", "USTAR_F")],
-                  1, function(x) sum(x == 1)) >= 0, ]
+                  1, function(x) sum(x == 1)) > 0, ]
 
 write.csv(
   select.ls,

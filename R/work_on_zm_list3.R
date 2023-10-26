@@ -65,7 +65,7 @@ work_on_zm_list3<-function(work.path,    ## where a previous version of zm list 
                                    "US-ALQ","US-MtB","US-Snf",
                                    "US-xCP","US-xDL","US-xKA","US-xRM","US-xWD",
                                    "US-Wpp","CA-Ca3","US-Vcp","CA-SJ2","US-Bar",
-                                   "US-CGG","CL-SDF","US-Cst"),  
+                                   "US-CGG","CL-SDF","US-Cst","US-CdM"),  
                             start="all",
                             end="all",
                             htower=c(3.77,3.77,4.15,3.4,3.6,
@@ -86,7 +86,7 @@ work_on_zm_list3<-function(work.path,    ## where a previous version of zm list 
                                      2.4,29.8,3.9,
                                      9.32,42.43,8.41,25.35,8.58,
                                      21,12,23.8,2,24.5,
-                                     3.65,42,37))
+                                     3.65,42,37,8))
   
   zm.list.new2<-data.frame(site=c("US-NC4","US-NC4",
                                   "US-NC3","US-NC3","US-NC3",

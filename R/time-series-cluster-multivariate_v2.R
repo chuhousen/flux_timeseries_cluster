@@ -8,6 +8,7 @@ require("ape") ##  for displaying more appealing trees
 require("dtwclust")
 require("nnet") # for multinomial logistic model
 require("DescTools") # for calculating Pseudo R-square
+library(maps)
 
 path <-
   "D:\\Housen\\Flux\\Data-exploring\\00_Synthesis_AmeriFlux_Time_Series_Cluster\\flux_timeseries_cluster\\"
@@ -20,11 +21,11 @@ source(paste0(RDir, "math_utility.R"))
 source(paste0(RDir, "get_ecomap.R"))
 
 ###### Control parameter
-ver <- "20230728"
+ver <- "20231019-8h5d"
 dist.ls <- c("dtw", "euclidean")
 
 len.ts <- 73 * 8  ## length of time series
-n.grp <- seq(20, 80, by = 1)  # searching window for the n of clusters/branches to keep 
+n.grp <- seq(30, 75, by = 1)  # searching window for the n of clusters/branches to keep 
 
 # target variables to run multi-variate clustering
 target.var.ls <- list(c("NETRAD", "TA", "VPD", "SWC"),
@@ -104,7 +105,8 @@ for (l1 in 1:length(target.var.ls)) {
     data.tmp <- data.tmp[, target.var]
     
     ## check whether missing values
-    if (sum(is.na(data.tmp)) != 0) {
+    if (sum(is.na(data.tmp)) != 0 |
+        (site.ls[i0] == "US-BZF" & "SWC" %in% target.var.ls[l1])) {
       drop.case <- c(drop.case, site.ls[i0])
     }
   }
@@ -317,28 +319,77 @@ for (l1 in 1:length(target.var.ls)) {
       )
     }  
     
-    grp.ls <- cutree(hc, k = n.grp.opt)
+    new.grp.ls <- grp.ls <- cutree(hc, k = n.grp.opt)
     
-    # write.csv(
-    #   as.matrix(distMatrix),
-    #   paste0(path.out, "AMF-diurnal-seasonal-cluster-",
-    #          target.var.outname.ls[l1],
-    #          "-distMatrix-", target.dist, ".csv"),
-    #   quote = T
-    # )
+    ## reorder group ID to follow relative location in a tree
+    sort.ls <- hc$labels[hc$order]
+    new.grp.ls <- rep(NA, length(new.grp.ls))
+    names(new.grp.ls) <- names(grp.ls)
+    
+    for(sss in 1:length(sort.ls)){
+      if(is.na(new.grp.ls[which(names(new.grp.ls) == sort.ls[sss])])){
+        
+        new.grp.ls[which(names(new.grp.ls) %in% 
+                           names(grp.ls[which(grp.ls == grp.ls[names(grp.ls) == sort.ls[sss]])]))] <-
+          ifelse(is.finite(suppressWarnings(max(new.grp.ls, na.rm = T))),
+                 max(new.grp.ls, na.rm = T) + 1,
+                 1)
+      }
+    }
+    
+    ## assign group color
+    #col_pan <- cluster_color_panel(target.var = target.var)
+    col_pan <- data.frame(r = t(col2rgb(rainbow(length(unique(new.grp.ls)))))[, 1],
+                          g = t(col2rgb(rainbow(length(unique(new.grp.ls)))))[, 2],
+                          b = t(col2rgb(rainbow(length(unique(new.grp.ls)))))[, 3],
+                          tmp = sort(unique(new.grp.ls)))
+    colnames(col_pan)[4] <- target.var.outname.ls[l1]
     
     # return cluster ID to full list
     full.ls <- data.frame(full.ls,
-                          tmp = NA)
+                          tmp = NA,
+                          tmp2 = NA,
+                          centroid = FALSE,
+                          color = NA)
+    col_pan_get <- rep(which(is.na(col_pan[, target.var.outname.ls[l1]])), nrow(full.ls))
     
-    for (i3 in 1:length(grp.ls)) {
-      full.ls$tmp[which(full.ls$SITE_ID == paste(names(grp.ls)[i3]))] <-
-        grp.ls[i3]
+    for (i3 in 1:length(new.grp.ls)) {
+      full.ls$tmp[which(full.ls$SITE_ID == paste(names(new.grp.ls)[i3]))] <- new.grp.ls[i3]
+      full.ls$centroid[which(full.ls$SITE_ID == paste(names(hc@centroids)[i3]))] <- TRUE
+      
+      if(new.grp.ls[i3] %in% col_pan[, target.var.outname.ls[l1]]){
+        col_pan_get[i3] <- which(col_pan[, target.var.outname.ls[l1]] == new.grp.ls[i3])
+        
+      }else if(!is.na(new.grp.ls[i3])){
+        col_pan_get[i3] <- which(col_pan[, target.var.outname.ls[l1]] == 99)
+        
+      }
+      
+      full.ls$color[which(full.ls$SITE_ID ==  paste(names(new.grp.ls)[i3]))] <- rgb(col_pan$r[col_pan_get[i3]],
+                                                                                    col_pan$g[col_pan_get[i3]],
+                                                                                    col_pan$b[col_pan_get[i3]], 
+                                                                                    maxColorValue = 255)
+      
     }
+    
+    for(i33 in 1:length(sort.ls)){
+      full.ls$tmp2[which(full.ls$SITE_ID == sort.ls[i33])] <- i33
+    }
+    
     colnames(full.ls)[which(colnames(full.ls) == "tmp")] <-
       paste(target.var.outname.ls[l1], "_clust_group_", target.dist, sep = "")
+    colnames(full.ls)[which(colnames(full.ls) == "tmp2")] <-
+      paste(target.var.outname.ls[l1], "_group_order_", target.dist, sep = "")
+    colnames(full.ls)[which(colnames(full.ls) == "centroid")] <-
+      paste(target.var.outname.ls[l1], "_centroid_", target.dist, sep = "")
+    colnames(full.ls)[which(colnames(full.ls) == "color")] <-
+      paste(target.var.outname.ls[l1], "_color_", target.dist, sep = "")
+    
     
     ## plot trees
+    hc.plot.tree <- ape::as.phylo(hc)
+    scale.facor <- (range(hc.plot.tree$edge.length)[2]-range(hc.plot.tree$edge.length)[1])*0.01
+    
     png(
       paste0(path.out, "AMF-diurnal-seasonal-cluster-",
              target.var.outname.ls[l1],
@@ -349,17 +400,118 @@ for (l1 in 1:length(target.var.ls)) {
       pointsize = 10,
       res = 300
     )
-    par(mfrow = c(1, 1), mar = c(4.5, 4.5, 4.5, 4.5))
+    par(mfrow = c(1, 1), mar = c(3.5, 3.5, 3.5, 3.5))
     plot(
-      ape::as.phylo(hc),
+      hc.plot.tree,
       type = "fan",
-      tip.color = rainbow(n.grp.opt)[grp.ls],
-      label.offset = 0.5,
+      tip.color = rgb(col_pan$r[col_pan_get],
+                      col_pan$g[col_pan_get],
+                      col_pan$b[col_pan_get], maxColorValue = 255),
+      label.offset = scale.facor,
       #show.node.label=T,
       cex = 0.6
     )
     #text(0,0,)
     dev.off()
+    
+    png(
+      paste0(path.out, "AMF-diurnal-seasonal-cluster-",
+             target.var.outname.ls[l1],
+             "-tree-radial-", target.dist, ".png"),
+      width = 9,
+      height = 9,
+      units = "in",
+      pointsize = 10,
+      res = 300
+    )
+    par(mfrow = c(1, 1), mar = c(3.5, 3.5, 3.5, 3.5))
+    plot(
+      hc.plot.tree,
+      type = "radial",
+      tip.color = rgb(col_pan$r[col_pan_get],
+                      col_pan$g[col_pan_get],
+                      col_pan$b[col_pan_get], maxColorValue = 255),
+      label.offset = scale.facor * 0.05,
+      #show.node.label=T,
+      cex = 0.6
+    )
+    #text(0,0,)
+    dev.off()
+    
+    ############################################################################
+    ## Map 
+    png(
+      paste0(path.out, "AMF-diurnal-seasonal-cluster-", target.var.outname.ls[l1], "-map-", target.dist,".png"),
+      height = 5,
+      width = 4.6,
+      res = 400,
+      units = "in",
+      pointsize = 10
+    )
+    par(
+      fig = c(0, 1, 0, 1),
+      oma = c(0, 0, 0, 0),
+      mar = c(0, 0, 0, 0)
+    )
+    plot(
+      0,
+      0,
+      type = "n",
+      xlim = c(-170, -30),
+      ylim = c(-60, 75),
+      yaxt = "n",
+      xaxt = "n",
+      xlab = "",
+      ylab = "",
+      xaxs = "i",
+      yaxs = "i",
+      bty = "n"
+    )
+    maps::map(
+      "world",
+      fill = TRUE,
+      border = "white",
+      col = "grey80",
+      bg = "white",
+      add = T,
+      xlim = c(-170, -30),
+      ylim = c(-60, 75),
+      mar = c(0, 0, 0, 0)
+    )
+    polygon(c(-60, -30, -30, -60),
+            c(60, 60, 75, 75),
+            border = "white",
+            col= "white")
+    polygon(c(-70, -30, -30, -70),
+            c(75, 75, 90, 90),
+            border = "white",
+            col= "white")
+    points(
+      full.ls$LOCATION_LONG[!is.na(full.ls[,paste0(target.var.outname.ls[l1], "_clust_group_", target.dist)])],
+      full.ls$LOCATION_LAT[!is.na(full.ls[,paste0(target.var.outname.ls[l1], "_clust_group_", target.dist)])],
+      col = full.ls[,paste0(target.var.outname.ls[l1], "_color_", target.dist)][!is.na(full.ls[,paste0(target.var.outname.ls[l1], "_clust_group_", target.dist)])],
+      cex = 0.75,
+      pch = 21,
+      lwd = 1
+    )
+    legend(
+      -165,
+      10,
+      title = "Group (n)",
+      title.adj = 0,
+      legend = paste0(col_pan[, 4], " (", 
+                      table(full.ls[, paste0(target.var.outname.ls[l1], "_clust_group_", target.dist)]), ")"),
+      fill = rgb(col_pan$r,
+                 col_pan$g,
+                 col_pan$b, maxColorValue = 255),
+      border = NA,
+      bty = "n",
+      cex = 0.75,
+      ncol = 4
+    )
+    dev.off()
+    
+    
     
     ###### explore cross table btw cluster & IGBP, Eco region
     short.ls <-

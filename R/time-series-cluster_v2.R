@@ -3,12 +3,15 @@ rm(list = ls()) # clean working memory
 require("pdc")
 require("proxy")
 require("dtw")
-require("rgdal")
+require("sp")
+#require("rgdal")
+require("terra")
 require("ape") ##  for displaying more appealing trees
 require("dtwclust")
 #require("gmodels") # for cross table
 require("nnet") # for multinomial logistic model
 require("DescTools") # for calculating Pseudo R-square
+library(maps)
 
 path <-
   "D:\\Housen\\Flux\\Data-exploring\\00_Synthesis_AmeriFlux_Time_Series_Cluster\\flux_timeseries_cluster\\"
@@ -23,16 +26,18 @@ source(paste0(RDir, "cluster_color_panel.R"))
 source(paste0(RDir, "ecoregion_table.R"))
 
 ###### Control parameter
-ver <- "20230728"
+ver <- "20231019-8h5d"
 dist.ls <- c("dtw", "euclidean")
 
 len.ts <- 73 * 8  ## length of time series
-# 24 * 24 for 20230725
-# 52 * 12 for 20230726
-# 52 * 8  for 20230727
-# 73 * 8  for 20230728
+len.ts.tck <- 24
+# 24 * 24 for 20231019-24h15d
+# 52 * 12 for 20231019-12h7d
+# 73 * 8  for 20231019-8h5d
 
-n.grp <- seq(30, 80, by = 1)  # searching window for the n of clusters/branches to keep 
+# searching window for the n of clusters/branches to keep 
+n.grp <- seq(30, 75, by = 1)  
+#n.grp2 <- seq(31, 75, by = 1)  
         #c(10:30) for cluster ms
 
 ## original colnames from diurnal-seasonal files, revising the colname
@@ -60,7 +65,7 @@ target.lab.ls <- list(expression(NEE~'('*mu*mole~m^{-2}~s^{-1}*')'),
                       #expression(P~'('*mm*')'),
                       #expression(WTD~'('*m*')')
                       )
-target.rng.ls <- list(seq(-60, 20, length.out = 5),
+target.rng.ls <- list(seq(-60, 40, length.out = 6),
                       seq(-130, 520, length.out = 6),
                       seq(-130, 520, length.out = 6),
                       seq(0, 1.6, length.out = 5),
@@ -127,29 +132,27 @@ src.list.in <- src.list.in[which(substr(src.list.in,
 
 
 ### read in Ecoregion map
-ecomap1 <- rgdal::readOGR(
+ecomap1 <- terra::vect(
   paste(map.in, "sa_eco_l3", sep = ""),
-  layer = c("sa_eco_l3"),
-  verbose = F
+  layer = "sa_eco_l3"
 )
-ecomap3 <- rgdal::readOGR(
+ecomap3 <- terra::vect(
   paste(map.in, "NA_CEC_Eco_Level3", sep = ""),
-  layer = c("NA_CEC_Eco_Level3"),
-  verbose = F
+  layer = "NA_CEC_Eco_Level3"
 )
 
-ecomap1 <- sp::spTransform(ecomap1,
-                       CRS("+proj=longlat +datum=WGS84"))
-ecomap3 <- sp::spTransform(ecomap3,
-                       CRS("+proj=longlat +datum=WGS84"))
+ecomap1 <- terra::project(ecomap1,
+                          "+proj=longlat +datum=WGS84")
+ecomap3 <- terra::project(ecomap3,
+                          "+proj=longlat +datum=WGS84")
 
 ### work on extraction of ecoregion for each site
-pts <- sp::SpatialPoints(full.ls[, c("LOCATION_LONG",
-                                 "LOCATION_LAT")],
-                     proj4string = CRS("+proj=longlat +datum=WGS84"))
+pts <- terra::vect(cbind(longitude = full.ls$LOCATION_LONG,
+                         latitude = full.ls$LOCATION_LAT),
+                   crs = "+proj=longlat +datum=WGS84")
 full.ls <- cbind.data.frame(full.ls,
-                            sp::over(pts, ecomap1)[, c(5, 6, 7)],
-                            sp::over(pts, ecomap3)[, c(1, 3, 5)])
+                            terra::extract(ecomap1, pts)[, c(6:8)],
+                            terra::extract(ecomap3, pts)[, c(2, 4, 6)])
 
 full.ls$eco_L1 <- full.ls$NA_L1CODE
 full.ls$eco_L1[is.na(full.ls$eco_L1)] <- full.ls$LEVEL1[is.na(full.ls$eco_L1)]
@@ -205,7 +208,9 @@ for (l1 in 1:length(target.var.ls)) {
     data.tmp <- data.tmp[, target.var]
     
     ## check whether missing values
-    if (sum(is.na(data.tmp)) != 0) {
+    # drop SWC from US-BZF as the gap-filling is problematic
+    if (sum(is.na(data.tmp)) != 0 |
+        (target.var == "SWC" & site.ls[i0] == "US-BZF")) {
       drop.case <- c(drop.case, site.ls[i0])
     }
   }
@@ -295,8 +300,10 @@ for (l1 in 1:length(target.var.ls)) {
       #control = hierarchical_control(method = "average")
     )
     
-    #n.grp <- seq(30, 300, by = 10)
+    
+    ##############################################################
     ## look through different n of trees and their CVI
+    
     names(hc1) <- paste0("k_", n.grp)
     cvi.est <- as.data.frame(t(sapply(hc1, cvi, type = "internal")))
     cvi.est <- cvi.est[, -which(colnames(cvi.est) == "SF")]
@@ -326,7 +333,7 @@ for (l1 in 1:length(target.var.ls)) {
       res = 300
     )
     plot(
-      n.grp,
+      c(n.grp),
       cvi.est[, 1] / max(cvi.est[, 1]),
       type = "l",
       xlim = range(n.grp),
@@ -345,8 +352,7 @@ for (l1 in 1:length(target.var.ls)) {
             lwd = 2)
     }
     legend(
-      10,
-      1.2,
+      "topleft",
       lty = 1,
       col = c("black", rainbow(6)),
       ncol = 4,
@@ -354,13 +360,14 @@ for (l1 in 1:length(target.var.ls)) {
       lwd = 1.5,
       bty = "n"
     )
-    lines(n.grp, apply(cvi.est, 1, mean), lwd = 3)
+    lines(c(n.grp), apply(cvi.est, 1, mean), lwd = 3)
     abline(v = n.grp[which(apply(cvi.est, 1, mean) == max(apply(cvi.est, 1, mean)))], lty = 4)
     dev.off()
     
+    ##############################################################
     ## Choose optimal tree number based on CH (Calinski-Harabasz) index
-    n.grp.opt <-
-      n.grp[which(apply(cvi.est, 1, mean) == max(apply(cvi.est, 1, mean)))]
+    
+    n.grp.opt <- n.grp[which(apply(cvi.est, 1, mean) == max(apply(cvi.est, 1, mean)))]
     
     hc <- dtwclust::tsclust(
       t(data.pre),
@@ -371,10 +378,12 @@ for (l1 in 1:length(target.var.ls)) {
       centroid = "pam"
       #control = hierarchical_control(method = "average")
     )
-    
-    new.grp.ls <- grp.ls <- cutree(hc, k = n.grp.opt)
 
-    ## reorder group ID to follow relative location in a tree
+    ########################################################################
+    ## reorder group ID to follow relative location in a tree    
+    ## prepare group list, colors, centroids
+    new.grp.ls <- grp.ls <- cutree(hc, k = n.grp.opt)
+    
     sort.ls <- hc$labels[hc$order]
     new.grp.ls <- rep(NA, length(new.grp.ls))
     names(new.grp.ls) <- names(grp.ls)
@@ -403,7 +412,8 @@ for (l1 in 1:length(target.var.ls)) {
     full.ls <- data.frame(full.ls,
                           tmp = NA,
                           tmp2 = NA,
-                          centroid = FALSE)
+                          centroid = FALSE,
+                          color = NA)
     col_pan_get <- rep(which(is.na(col_pan[, target.var])), nrow(full.ls))
     
     for (i3 in 1:length(new.grp.ls)) {
@@ -415,8 +425,13 @@ for (l1 in 1:length(target.var.ls)) {
         
       }else if(!is.na(new.grp.ls[i3])){
         col_pan_get[i3] <- which(col_pan[, target.var] == 99)
-        
       }
+      
+      full.ls$color[which(full.ls$SITE_ID ==  paste(names(new.grp.ls)[i3]))] <- rgb(col_pan$r[col_pan_get[i3]],
+                                                                                    col_pan$g[col_pan_get[i3]],
+                                                                                    col_pan$b[col_pan_get[i3]], 
+                                                                                    maxColorValue = 255)
+      
     }
     
     for(i33 in 1:length(sort.ls)){
@@ -429,8 +444,17 @@ for (l1 in 1:length(target.var.ls)) {
       paste(target.var, "_group_order_", target.dist, sep = "")
     colnames(full.ls)[which(colnames(full.ls) == "centroid")] <-
       paste(target.var, "_centroid_", target.dist, sep = "")
+    colnames(full.ls)[which(colnames(full.ls) == "color")] <-
+      paste(target.var, "_color_", target.dist, sep = "")
  
-    ## plot trees
+    ############################################################################
+    ## Figure preparation
+    ##  plot trees
+    hc.plot.tree <- ape::as.phylo(hc)
+    scale.facor <-
+      (range(hc.plot.tree$edge.length)[2] - range(hc.plot.tree$edge.length)[1]) *
+      0.01
+    
     png(
       paste0(path.out, "AMF-diurnal-seasonal-cluster-", target.var, "-tree-", target.dist,".png"),
       width = 4.5,
@@ -441,12 +465,12 @@ for (l1 in 1:length(target.var.ls)) {
     )
     par(mfrow = c(1, 1), mar = c(0.1, 0.1, 0.1, 0.1), oma= c(0, 0, 0, 0))
     plot(
-      ape::as.phylo(hc),
+      hc.plot.tree,
       #type = "unrooted",
       tip.color = rgb(col_pan$r[col_pan_get],
                       col_pan$g[col_pan_get],
                       col_pan$b[col_pan_get], maxColorValue = 255),
-      label.offset = ifelse(l1 == 4, 0.5,15),
+      label.offset = scale.facor,#ifelse(l1 == 4, 0.5,15),
       #show.node.label=T,
       cex = 0.4
     )
@@ -463,36 +487,111 @@ for (l1 in 1:length(target.var.ls)) {
     )
     par(mfrow = c(1, 1), mar = c(4.5, 4.5, 4.5, 4.5), oma= c(0, 0, 0, 0))
     plot(
-      ape::as.phylo(hc),
+      hc.plot.tree,
       type = "fan",
       tip.color = rgb(col_pan$r[col_pan_get],
                       col_pan$g[col_pan_get],
                       col_pan$b[col_pan_get], maxColorValue = 255),
-      label.offset = ifelse(l1 == 4, 0.5,15),
+      label.offset = scale.facor,#ifelse(l1 == 4, 0.5,15),
       #show.node.label=T,
-      cex = 0.65
+      cex = 0.65,
+      no.margin = T
     )
     #text(0,0,)
     dev.off()
     
+    ############################################################################
+    ## Map 
+    png(
+      paste0(path.out, "AMF-diurnal-seasonal-cluster-", target.var, "-map-", target.dist,".png"),
+      height = 5,
+      width = 4.6,
+      res = 400,
+      units = "in",
+      pointsize = 10
+    )
+    par(
+      fig = c(0, 1, 0, 1),
+      oma = c(0, 0, 0, 0),
+      mar = c(0, 0, 0, 0)
+    )
+    plot(
+      0,
+      0,
+      type = "n",
+      xlim = c(-170, -30),
+      ylim = c(-60, 75),
+      yaxt = "n",
+      xaxt = "n",
+      xlab = "",
+      ylab = "",
+      xaxs = "i",
+      yaxs = "i",
+      bty = "n"
+    )
+    maps::map(
+      "world",
+      fill = TRUE,
+      border = "white",
+      col = "grey80",
+      bg = "white",
+      add = T,
+      xlim = c(-170, -30),
+      ylim = c(-60, 75),
+      mar = c(0, 0, 0, 0)
+    )
+    polygon(c(-60, -30, -30, -60),
+            c(60, 60, 75, 75),
+            border = "white",
+            col= "white")
+    polygon(c(-70, -30, -30, -70),
+            c(75, 75, 90, 90),
+            border = "white",
+            col= "white")
+    points(
+      full.ls$LOCATION_LONG[!is.na(full.ls[,paste0(target.var, "_clust_group_", target.dist)])],
+      full.ls$LOCATION_LAT[!is.na(full.ls[,paste0(target.var, "_clust_group_", target.dist)])],
+      col = full.ls[,paste0(target.var, "_color_", target.dist)][!is.na(full.ls[,paste0(target.var, "_clust_group_", target.dist)])],
+      cex = 0.75,
+      pch = 21,
+      lwd = 1
+    )
+    legend(
+      -165,
+      10,
+      title = "Group (n)",
+      title.adj = 0,
+      legend = paste0(col_pan[, 4], " (", 
+                      table(full.ls[, paste0(target.var, "_clust_group_", target.dist)]), ")"),
+      fill = rgb(col_pan$r,
+                 col_pan$g,
+                 col_pan$b, maxColorValue = 255),
+      border = NA,
+      bty = "n",
+      cex = 0.75,
+      ncol = 4
+    )
+    dev.off()
+    
+    ############################################################################
     ## plot grouped diurnal-seasonal plots
     png(
       paste0(path.out, "AMF-diurnal-seasonal-cluster-", target.var, "-", target.dist,".png"),
       width = 7,
-      height = 0.5 + ceiling(n.grp.opt / 3) * 8.5 / 9,
+      height = 0.5 + ceiling(n.grp.opt / 5) * 6 / 9,
       units = "in",
       pointsize = 9,
       res = 300
     )
     
     par(
-      mfrow = c(ceiling(n.grp.opt / 3), 3),
-      mar = c(0.2, 0.2, 0.2, 0.2),
+      mfrow = c(ceiling(n.grp.opt / 5), 5),
+      mar = c(0.1, 0.1, 0.1, 0.1),
       oma = c(3.5, 5.5, 1, 1)
     )
     
     # sort by number of sites
-    new.grp.ls.sort <- as.numeric(rev(names(sort(table(new.grp.ls)))))
+    #new.grp.ls.sort <- as.numeric(rev(names(sort(table(new.grp.ls)))))
     
     for (j2 in 1:n.grp.opt) {
       plot(
@@ -508,11 +607,12 @@ for (l1 in 1:length(target.var.ls)) {
         yaxt = "n"
       )
       
-      data.pre.sub <- as.data.frame(data.pre[, which(new.grp.ls == new.grp.ls.sort[j2])])
+      #data.pre.sub <- as.data.frame(data.pre[, which(new.grp.ls == new.grp.ls.sort[j2])])
+      data.pre.sub <- as.data.frame(data.pre[, which(new.grp.ls == j2)])
       
       ### find prototype, either average or centroid
       #data.pre.sub.mean <- apply(data.pre.sub, 1, na.mean)
-      data.pre.sub.mean <- hc@centroids[[new.grp.ls.sort[j2]]]
+      data.pre.sub.mean <- hc@centroids[[which(names(hc@centroids) %in% names(new.grp.ls[new.grp.ls == j2]))]]
       
       for (j1 in 1:ncol(data.pre.sub)) {
         lines(data.pre.sub[, j1],
@@ -520,40 +620,41 @@ for (l1 in 1:length(target.var.ls)) {
               lwd = 0.5)
       }
       
-      text(len.ts * 0.9,
-           target.rng.ls[[l1]][length(target.rng.ls[[l1]])] - 0.1 * (
-             target.rng.ls[[l1]][length(target.rng.ls[[l1]])] - target.rng.ls[[l1]][1]
-           ),
-           paste("Group:", new.grp.ls.sort[j2]))
-
-      if (j2 - 1 == ceiling((j2 - 1 ) / 3) * 3 ) {
+     
+      if (j2 - 1 == ceiling((j2 - 1 ) / 5) * 5 ) {
         axis(2, target.rng.ls[[l1]],las = 2)
       }
       
       #if (ncol(data.pre.sub) > 1)
-        if (new.grp.ls.sort[j2] %in% col_pan[, target.var]) {
+        if (j2 %in% col_pan[, target.var]) {
           lines(
             data.pre.sub.mean,
-            col = rgb(col_pan$r[which(col_pan[, target.var] == new.grp.ls.sort[j2])],
-                      col_pan$g[which(col_pan[, target.var] == new.grp.ls.sort[j2])],
-                      col_pan$b[which(col_pan[, target.var] == new.grp.ls.sort[j2])],
+            col = rgb(col_pan$r[which(col_pan[, target.var] == j2)],
+                      col_pan$g[which(col_pan[, target.var] == j2)],
+                      col_pan$b[which(col_pan[, target.var] == j2)],
                       maxColorValue = 255),
-            lwd = 1
+            lwd = 0.8
           )
         }
       
       if(ncol(data.pre.sub) < 5){
         legend(
           "topleft",
-          paste(names(new.grp.ls[new.grp.ls == new.grp.ls.sort[j2]])),
+          paste(names(new.grp.ls[new.grp.ls == j2])),
           col = "darkgrey",
           cex = 1,
           bty = "n"
         )
       }
       
-      if(j2 >= n.grp.opt - 2){
-        axis(1, at = seq(0, 24 * 24, by = 24), labels = FALSE)
+      text(len.ts * 0.8,
+           target.rng.ls[[l1]][length(target.rng.ls[[l1]])] - 0.1 * (
+             target.rng.ls[[l1]][length(target.rng.ls[[l1]])] - target.rng.ls[[l1]][1]
+           ),
+           paste0("Group:", j2, "(", ncol(data.pre.sub) ,")"))
+      
+      if(j2 >= n.grp.opt - 4){
+        axis(1, at = seq(0, len.ts, by = len.ts.tck), labels = FALSE)
       }
     }
     mtext(
@@ -574,7 +675,8 @@ for (l1 in 1:length(target.var.ls)) {
     
     dev.off()
     
-    #################
+    
+    ############################################################################
     ### subgroup plot
     sub.new.grp.ls <- as.numeric(names(table(new.grp.ls))[table(new.grp.ls) > 5])
     
@@ -690,20 +792,32 @@ for (l1 in 1:length(target.var.ls)) {
       }
     }
     
+    ############################################################################
     ###### explore cross table btw cluster & IGBP, Eco region
     short.ls <-
       data.frame(
-        group = as.factor(full.ls[, grep(paste0(target.var, "_clust_group_", target.dist), colnames(full.ls))]),
+        group = as.factor(full.ls[, grep(paste0(target.var, "_clust_group_", target.dist),
+                                         colnames(full.ls))]),
         igbp = as.factor(full.ls$IGBP),
         ecoregion = as.factor(full.ls$eco_L1_name),
         eco_igbp = as.factor(paste0(full.ls$eco_L1_name, "_", full.ls$IGBP))
       )
     
-    write.csv(table(short.ls$eco_igbp,
-                    short.ls$group),
-              file = paste0(path.out, "AMF-diurnal-seasonal-cluster-", target.var, "-", target.dist, "eco_igbp.csv"),
-              row.names = T) 
+    write.csv(
+      table(short.ls$eco_igbp,
+            short.ls$group),
+      file = paste0(
+        path.out,
+        "AMF-diurnal-seasonal-cluster-",
+        target.var,
+        "-",
+        target.dist,
+        "eco_igbp.csv"
+      ),
+      row.names = T
+    )
     
+    ############################################################################
     ####### Logistic regression to explore the predictability of IGBP & Ecoregion
     sink(file = paste(
       path.out,
