@@ -30,7 +30,7 @@ source(paste0(RDir, "badm.extract.R"))
 source(paste0(RDir, "get_utc_offset.R"))
 
 ###   Create a version sub directory
-ver <- "20220701"     # for storing outputs
+ver <- "20231019-12h7d"     # for storing outputs
 
 if (!dir.exists(paste(path.out.root, ver, sep = "")))
   dir.create(paste(path.out.root, ver, sep = ""))
@@ -44,16 +44,16 @@ sel.var <- c("FC", "SC", "NEE", "LE", "H",
 )
 
 ### define the window for calculating diurnal-seasonal summary
-l.wd <- 15                   # length of days
+l.wd <- 7                   # length of days
 n.wd <- floor(365 / l.wd)    # number of windows per year
 min.year.to.run <- 3         # minimum data record to include the site
 forest.igbp.ls <- c("EBF", "ENF", "DBF", "DNF", "MF", "WSA")
 
 ## output time resolution
 #   org: maintain original time resolution (HH/HR) in generating diurnal stat
-#   to_hr:  convert half-hour resolution to hourly
-hr.res <-  "to_hr"
-out.res <- "HR"              # output resolution
+#   aggregate:  convert half-hour resolution to hourly
+hr.res <-  "aggregate"
+out.res <- 2 # output resolution, in hours
 
 ## min percentage of non-missing in filling diurnal-seasonal time series, within each window
 allow.nongap.within.wd <- 0.80  
@@ -118,7 +118,7 @@ var.info <- var.info.tmp[[1]]
 target.site <-
   get_full_list(base.in)   
 ##  or specified subset for update only, by c(CC-XXX,.....)
-target.site<-c("US-Oho", "US-CRT", "US-NR1", "US-Ne1", "US-Los", "US-WPT")
+target.site<-c("US-Oho")
 
 target.res <- rep("HH", length(target.site))
 target.res[which(
@@ -188,7 +188,7 @@ for (k in 1:length(target.site)) {
   ## control var, used in preparing the diurnal-seasonal outputs
   d.hr <- ifelse(hr.res == "org",
                  ifelse(target.res[k] == "HH", 48, 24),
-                 ifelse(hr.res == "to_hr", 24, NA))  ## will break out if exception cases
+                 48 / out.res / 2)  
   
   #################################################################################################################
   ## Deal with file names, read in files
@@ -394,8 +394,9 @@ for (k in 1:length(target.site)) {
   if (hr.res == "org") {
     data.work$HOUR_ID <-
       data.work$TIMESTAMP$hour + data.work$TIMESTAMP$min / 60
-  } else if (hr.res == "to_hr") {
-    data.work$HOUR_ID <- data.work$TIMESTAMP$hour + 30 / 60
+  } else if (hr.res == "aggregate") {
+    data.work$HOUR_ID <-
+      (floor(data.work$TIMESTAMP$hour / (24 / d.hr)) * (24 / d.hr)) + 0.5 * (24 / d.hr)
   }
   
   basename_decode.work <-
@@ -662,8 +663,8 @@ for (k in 1:length(target.site)) {
   
   if (hr.res == "org") {
     HOUR_ID <- rep(c(1:d.hr) / (60 / hr) - (hr / 60) / 2, times = n.wd)
-  } else if (hr.res == "to_hr") {
-    HOUR_ID <- rep(c(1:d.hr) - 0.5, times = n.wd)
+  } else if (hr.res == "aggregate") {
+    HOUR_ID <- rep(sort(unique(data.work$HOUR_ID)), times = n.wd)
   }
   
   #data.out1<-cbind(DATE_ID,HOUR_ID)
@@ -847,7 +848,7 @@ for (k in 1:length(target.site)) {
   ## work on example plot
   data.work$TIME_ID <- data.work$DATE_ID - 1 + data.work$HOUR_ID / 24
   data.out3 <- data.frame(data.out3)
-  data.out3$TIME_ID <- data.out3$DATE_ID -1 +data.out3$HOUR_ID / 24
+  data.out3$TIME_ID <- data.out3$DATE_ID -1 + data.out3$HOUR_ID / 24
   
   png(
     paste0(path.out, "AMF-diurnal-seasonal-example_NEE_", target.site[k], ".png"),
@@ -872,19 +873,19 @@ for (k in 1:length(target.site)) {
     col = rgb(0, 0, 0, 0.1),
     xaxt = "n",
     xlab = "",
-    xlim = c(0, 24)
+    xlim = c(0, n.wd)
   )
   lines(data.out3$TIME_ID,
        data.out3$NEE,
        lty = 1,
        col = "red",
-       lwd = 2.5)
+       lwd = 1.5)
   axis(
     side = 3,
-    at = seq(0.5, 23.5, by = 1),
-    labels = seq(8, 353, by = 15),
+    at = seq(0.5, n.wd - 0.5, by = 1),
+    labels = seq(median(1:l.wd), median(1:l.wd) + (n.wd - 1) * l.wd, by = l.wd),
     cex.axis = 0.75)
-  abline(v = seq(0, 24, by = 1), lty = 3)
+  abline(v = seq(0, n.wd, by = 1), lty = 3)
   mtext(side = 2,
         expression(NEE~'('*mu*mole~m^{-2}~s^{-1}*')'),
         line = 2.5,
@@ -897,19 +898,20 @@ for (k in 1:length(target.site)) {
         cex = 1.5)
   axis(
     side = 1,
-    at = seq(0, 23.75, by = 0.25),
-    labels = rep(c(0, 6, 12, 18), 24),
-    cex.axis = 0.75
+    at = seq(0, n.wd, by = 0.25),
+    labels = NA,
+    cex.axis = 0.6
   )
   mtext(side = 1,
         "Hour of Day",
-        line = 3,
+        line = 2,
         outer = F,
         cex = 1.5)
   dev.off()
   
-  png(
-    paste0(path.out, "AMF-diurnal-seasonal-example_USTAR_", target.site[k], ".png"),
+  
+   png(
+    paste0(path.out, "AMF-diurnal-seasonal-example_NEE_", target.site[k], ".png"),
     width = 9,
     height = 4,
     units = "in",
@@ -922,7 +924,7 @@ for (k in 1:length(target.site)) {
   )
   plot(
     data.work$TIME_ID,
-    data.work$USTAR,
+    data.work$NEE,
     las = 1,
     xaxs = "i",
     ylab = "",
@@ -931,22 +933,21 @@ for (k in 1:length(target.site)) {
     col = rgb(0, 0, 0, 0.1),
     xaxt = "n",
     xlab = "",
-    xlim = c(0, 24),
-    ylim = c(0, 3)
+    xlim = c(0, n.wd)
   )
   lines(data.out3$TIME_ID,
-        data.out3$USTAR,
-        lty = 1,
-        col = "red",
-        lwd = 2.5)
+       data.out3$NEE,
+       lty = 1,
+       col = "red",
+       lwd = 1.5)
   axis(
     side = 3,
-    at = seq(0.5, 23.5, by = 1),
-    labels = seq(8, 353, by = 15),
+    at = seq(0.5, n.wd - 0.5, by = 1),
+    labels = seq(median(1:l.wd), median(1:l.wd) + (n.wd - 1) * l.wd, by = l.wd),
     cex.axis = 0.75)
-  abline(v = seq(0, 24, by = 1), lty = 3)
+  abline(v = seq(0, n.wd, by = 1), lty = 3)
   mtext(side = 2,
-        expression(USTAR~'('*m~s^{-1}*')'),
+        expression(NEE~'('*mu*mole~m^{-2}~s^{-1}*')'),
         line = 2.5,
         font = 2,
         cex = 1.5)
@@ -957,17 +958,18 @@ for (k in 1:length(target.site)) {
         cex = 1.5)
   axis(
     side = 1,
-    at = seq(0, 23.75, by = 0.25),
-    labels = rep(c(0, 6, 12, 18), 24),
-    cex.axis = 0.75
+    at = seq(0, n.wd, by = 0.25),
+    labels = NA,
+    cex.axis = 0.6
   )
   mtext(side = 1,
         "Hour of Day",
-        line = 3,
+        line = 2,
         outer = F,
         cex = 1.5)
   dev.off()
-  
+ 
+ 
   print(paste("################################################"))
   print(paste("                                                "))
 }

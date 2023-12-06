@@ -1,5 +1,5 @@
 ecoregion.code.l1 <- data.frame(
-  code = c(1:24),
+  code = c(1:25),
   name = c(
     "Arctic Cordillera",
     "Tundra",
@@ -24,7 +24,8 @@ ecoregion.code.l1 <- data.frame(
     "Eastern Highlands",
     "Gran Chaco",
     "Pampas",
-    "Monte-Patagonian"
+    "Monte-Patagonian",
+    "Hawaii"
   )
 )
 
@@ -40,7 +41,8 @@ ecoregion.ls <- list(
   ecoregion.9 = c("14", "15", "16"),
   ecoregion.10 = c("17", "18", "19"),
   ecoregion.11 = c("20", "21"),
-  ecoregion.12 = c("22", "23", "24")
+  ecoregion.12 = c("22", "23", "24"),
+  ecoregion.13 = c("25")
 )
 
 ecoregion.text.ls <- c(
@@ -55,23 +57,25 @@ ecoregion.text.ls <- c(
   "Tropical forests",
   "Andes",
   "Amazonian-Orinocan",
-  "Pampas-Patagonian"
+  "Pampas-Patagonian",
+  "Hawaii"
 )
 
 ecoregion.color.table <-
   data.frame(
-    ecoregion = c(as.character(c(1:24))),
+    ecoregion = c(as.character(c(1:25))),
     plot.group = c(1, 1,
                    2, 2,
                    3,
                    4, 4,
                    5,
                    6,
-                   7, 8, 7, 7,
+                   8, 7, 8, 8,
                    9, 9, 9,
                    10, 10, 10,
                    11, 11,
-                   12, 12, 12),
+                   12, 12, 12,
+                   13),
     n.site = NA,
     n.site2 = NA,
     # plot.order = c(14, 4, 1, 5, 2, 3,
@@ -91,17 +95,18 @@ ecoregion.color.table <-
       "Mediterranean California",
       "S Semi-arid highlands",
       "Temperate sierras",
-      "Tropical dry forests",
-      "Tropical humid forests",
+      "Tropical dry Forests",
+      "Tropical humid Forests",
       "Caribbean islands",
       "N Andes",
       "C Andes",
       "S Andes",
       "Amazonian-Orinocan",
-      "Eastern highlands",
+      "Eastern Highlands",
       "Gran Chaco",
       "Pampas",
-      "Monte-Patagonian"
+      "Monte-Patagonian",
+      "Hawaii"
     ),
     col = c(
       rgb(0, 0, 255, 255, maxColorValue = 255),
@@ -127,7 +132,8 @@ ecoregion.color.table <-
       rgb(200, 0, 200, 255, maxColorValue = 255),
       rgb(0, 255, 255, 255, maxColorValue = 255),
       rgb(55, 200, 255, 255, maxColorValue = 255),
-      rgb(0, 125, 125, 255, maxColorValue = 255)
+      rgb(0, 125, 125, 255, maxColorValue = 255),
+      rgb(169, 169, 169, 255, maxColorValue = 255)
     ),
     col2 = c(
       rgb(0, 0, 255, 150, maxColorValue = 255),
@@ -153,7 +159,8 @@ ecoregion.color.table <-
       rgb(200, 0, 200, 150, maxColorValue = 255),
       rgb(0, 255, 255, 150, maxColorValue = 255),
       rgb(55, 200, 255, 150, maxColorValue = 255),
-      rgb(0, 125, 125, 150, maxColorValue = 255)
+      rgb(0, 125, 125, 150, maxColorValue = 255),
+      rgb(169, 169, 169, 150, maxColorValue = 255)
     ),
     stringsAsFactors = F
   )
@@ -172,10 +179,11 @@ ecoregion.color.table2 <-
       ecoregion.9 = c("14", "15", "16"),
       ecoregion.10 = c("17", "18", "19"),
       ecoregion.11 = c("20", "21"),
-      ecoregion.12 = c("22", "23", "24")
+      ecoregion.12 = c("22", "23", "24"),
+      ecoregion.13 = c("25")
     ),
-    n.site = rep(NA, 12),
-    n.site2 = rep(NA, 12),
+    n.site = rep(NA, 13),
+    n.site2 = rep(NA, 13),
     plot.text = c(
       "Tundra",
       "Taiga-Hudson plains",
@@ -188,7 +196,8 @@ ecoregion.color.table2 <-
       "Tropical forests",
       "Andes",
       "Amazonian-Orinocan",
-      "Pampas-Patagonian"
+      "Pampas-Patagonian",
+      "Hawaii"
     ),
     col = c(
       rgb(0, 0, 255, 255, maxColorValue = 255),
@@ -202,7 +211,8 @@ ecoregion.color.table2 <-
       rgb(100, 200, 100, 255, maxColorValue = 255),
       rgb(170, 175, 255, 255, maxColorValue = 255),
       rgb(255, 0, 255, 255, maxColorValue = 255),
-      rgb(0, 125, 125, 255, maxColorValue = 255)
+      rgb(0, 125, 125, 255, maxColorValue = 255),
+      rgb(169, 169, 169, 255, maxColorValue = 255)
     ),
     col2 = c(
       rgb(0, 0, 255, 150, maxColorValue = 255),
@@ -216,6 +226,7 @@ ecoregion.color.table2 <-
       rgb(100, 200, 100, 150, maxColorValue = 255),
       rgb(170, 175, 255, 150, maxColorValue = 255),
       rgb(255, 0, 255, 150, maxColorValue = 255),
-      rgb(0, 125, 125, 150, maxColorValue = 255)
+      rgb(0, 125, 125, 150, maxColorValue = 255),
+      rgb(169, 169, 169, 150, maxColorValue = 255)
     )
   )

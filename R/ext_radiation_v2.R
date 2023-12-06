@@ -40,27 +40,29 @@ ext_radiation_v2<-function(latitude,
                                       format="%Y%m%d%H%M",tz="UTC"),
                           by="60 min")
   }
-  TIMESTAMP<-strptime(TIMESTAMP[-length(TIMESTAMP)]+0.5*hr*60,
-                      format="%Y-%m-%d %H:%M:%S",tz="UTC")
+  #TIMESTAMP<-as.POSIXct(TIMESTAMP-0.5*hr*60,
+  #                      tz="UTC")
   
-  start.time<-strptime(TIMESTAMP-0.5*hr*60,
-                       format="%Y-%m-%d %H:%M:%S",tz="UTC")
-  TIMESTAMP_START<-((start.time$year+1900)*10^8+
-                      (start.time$mon+1)*10^6+
-                      start.time$mday*10^4+
-                      start.time$hour*10^2+
-                      start.time$min)
+  start.time<-as.POSIXct(TIMESTAMP[-length(TIMESTAMP)],
+                         tz="UTC")
+  TIMESTAMP_START<-(as.numeric(strftime(start.time, format="%Y", tz="UTC"))*10^8+
+                      as.numeric(strftime(start.time, format="%m", tz="UTC"))*10^6+
+                      as.numeric(strftime(start.time, format="%d", tz="UTC"))*10^4+
+                      as.numeric(strftime(start.time, format="%H", tz="UTC"))*10^2+
+                      as.numeric(strftime(start.time, format="%M", tz="UTC")))
   
-  end.time<-strptime(TIMESTAMP+0.5*hr*60,
-                     format="%Y-%m-%d %H:%M:%S",tz="UTC")
-  TIMESTAMP_END<-((end.time$year+1900)*10^8+
-                    (end.time$mon+1)*10^6+
-                    (end.time$mday)*10^4+
-                    end.time$hour*10^2+
-                    end.time$min)
+  end.time<-as.POSIXct(TIMESTAMP[-1],
+                        tz="UTC")
+  TIMESTAMP_END<-(as.numeric(strftime(end.time, format="%Y", tz="UTC"))*10^8+
+                    as.numeric(strftime(end.time, format="%m", tz="UTC"))*10^6+
+                    as.numeric(strftime(end.time, format="%d", tz="UTC"))*10^4+
+                    as.numeric(strftime(end.time, format="%H", tz="UTC"))*10^2+
+                    as.numeric(strftime(end.time, format="%M", tz="UTC")))
   
-  DOY<-TIMESTAMP$yday+1
-  mid.time<-(TIMESTAMP$hour+TIMESTAMP$min/60)
+  
+  DOY<-as.numeric(strftime(start.time, format="%j", tz="UTC"))
+  mid.time<-(as.numeric(strftime(start.time, format="%H", tz="UTC"))+
+               as.numeric(strftime(start.time, format="%M", tz="UTC"))/60)
   
   # longitude of the centre of the local time zone [degrees west of Greenwich] 
   # t.zone = 75, 90, 105 and 120 for Eastern (-5), Central (-6), Rocky Mountain (-7), Pacific (-8) time zones

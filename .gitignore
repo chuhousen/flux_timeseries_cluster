@@ -7,3 +7,5 @@ diurnal-seasonality/
 cluster-output/
 variable-year/
 .gitignore
+summary
+*.csv

@@ -22,14 +22,16 @@ map.in <- paste0(path, "ecoregion\\")
 
 source(paste0(RDir, "math_utility.R"))
 source(paste0(RDir, "get_ecomap.R"))
-source(paste0(RDir, "cluster_color_panel.R"))
+source(paste0(RDir, "cluster_color_panel2.R"))
 source(paste0(RDir, "ecoregion_table.R"))
+source(paste0(RDir, "igbp_table.R"))
 
 ###### Control parameter
-ver <- "20231019-8h5d"
-dist.ls <- c("dtw", "euclidean")
+ver <- "20231019-12h7d"
+dist.ls <- c("dtw")#, "euclidean")
+use.prescribed.col <- T
 
-len.ts <- 73 * 8  ## length of time series
+len.ts <- 52 * 12  ## length of time series
 len.ts.tck <- 24
 # 24 * 24 for 20231019-24h15d
 # 52 * 12 for 20231019-12h7d
@@ -171,6 +173,39 @@ for(ee in 1:nrow(ecoregion.code.l1)){
     ecoregion.code.l1$name[ee]
 }
 full.ls$eco_L1_name[which(full.ls$SITE_ID %in% c("US-SuS", "US-SuW", "US-SuM", "US-xPU"))] <- "Hawaii"
+full.ls$eco_L1[which(full.ls$SITE_ID %in% c("US-SuS", "US-SuW", "US-SuM", "US-xPU"))] <- 25
+
+## add ecoregion/IGBP color panels
+if(!"igbp.color" %in% colnames(full.ls)){
+  full.ls$igbp.color <- NA
+  full.ls$igbp.color2 <- NA
+  full.ls$ecoregion.color <- NA
+  full.ls$ecoregion.color2 <- NA
+  for (i in 1:nrow(full.ls)) {
+    full.ls$igbp.color[i] <-
+      igbp.color.table$col[which(grepl(paste(full.ls$IGBP[i]),
+                                       igbp.color.table$igbp))]
+    full.ls$igbp.color2[i] <-
+      igbp.color.table$col2[which(grepl(paste(full.ls$IGBP[i]),
+                                        igbp.color.table$igbp))]
+    
+    if (!is.na(full.ls$eco_L1[i]) & full.ls$eco_L1[i] != "NA") {
+      full.ls$ecoregion.color[i] <-
+        ecoregion.color.table$col[which(grepl(
+          paste(full.ls$eco_L1[i]),
+          ecoregion.color.table$ecoregion
+        ))]
+      full.ls$ecoregion.color2[i] <-
+        ecoregion.color.table$col2[which(grepl(
+          paste(full.ls$eco_L1[i]),
+          ecoregion.color.table$ecoregion
+        ))]
+    } else {
+      full.ls$ecoregion.color[i] <- "gray"
+      full.ls$ecoregion.color2[i] <- "gray"
+    }
+  }
+}
 
 ## Work by variables
 for (l1 in 1:length(target.var.ls)) {
@@ -401,12 +436,16 @@ for (l1 in 1:length(target.var.ls)) {
     #plot(new.grp.ls)
     
     ## assign group color
-    #col_pan <- cluster_color_panel(target.var = target.var)
-    col_pan <- data.frame(r = t(col2rgb(rainbow(length(unique(new.grp.ls)))))[, 1],
-                          g = t(col2rgb(rainbow(length(unique(new.grp.ls)))))[, 2],
-                          b = t(col2rgb(rainbow(length(unique(new.grp.ls)))))[, 3],
-                          tmp = sort(unique(new.grp.ls)))
-    colnames(col_pan)[4] <- target.var
+    if(use.prescribed.col){
+      col_pan <- cluster_color_panel2(target.var = target.var)
+      
+    }else{
+      col_pan <- data.frame(r = t(col2rgb(rainbow(length(unique(new.grp.ls)))))[, 1],
+                            g = t(col2rgb(rainbow(length(unique(new.grp.ls)))))[, 2],
+                            b = t(col2rgb(rainbow(length(unique(new.grp.ls)))))[, 3],
+                            tmp = sort(unique(new.grp.ls)))
+      colnames(col_pan)[4] <- target.var
+    }
     
     # return cluster ID to full list
     full.ls <- data.frame(full.ls,
@@ -478,14 +517,21 @@ for (l1 in 1:length(target.var.ls)) {
     dev.off()
     
     png(
-      paste0(path.out, "AMF-diurnal-seasonal-cluster-", target.var, "-tree-fan-", target.dist,".png"),
+      paste0(
+        path.out,
+        "AMF-diurnal-seasonal-cluster-",
+        target.var,
+        "-tree-fan-",
+        target.dist,
+        ".png"
+      ),
       width = 9,
       height = 9,
       units = "in",
       pointsize = 10,
       res = 300
     )
-    par(mfrow = c(1, 1), mar = c(4.5, 4.5, 4.5, 4.5), oma= c(0, 0, 0, 0))
+    par(mfrow = c(1, 1), mar = c(3.5, 3.5, 3.5, 3.5), oma= c(0, 0, 0, 0))
     plot(
       hc.plot.tree,
       type = "fan",
@@ -499,6 +545,177 @@ for (l1 in 1:length(target.var.ls)) {
     )
     #text(0,0,)
     dev.off()
+    
+    png(
+      paste0(path.out, "AMF-diurnal-seasonal-cluster-",
+             target.var,
+             "-tree-fan-", target.dist, "-ecoregion.png"),
+      width = 9,
+      height = 9,
+      units = "in",
+      pointsize = 10,
+      res = 300
+    )
+    par(mfrow = c(1, 1), mar = c(3.5, 3.5, 3.5, 3.5), oma= c(0, 0, 0, 0))
+    plot(
+      hc.plot.tree,
+      type = "fan",
+      tip.color = full.ls[hc.plot.tree$tip.label,][, "ecoregion.color"],
+      label.offset = scale.facor,
+      #show.node.label=T,
+      cex = 0.65,
+      no.margin = T
+    )
+    legend(
+      "center",
+      legend = ecoregion.color.table$plot.text[ecoregion.color.table$ecoregion %in% unique(full.ls$eco_L1)],
+      fill = ecoregion.color.table$col[ecoregion.color.table$ecoregion %in% unique(full.ls$eco_L1)],
+      border = NA,
+      box.lty = 0,
+      #bty = "n",
+      cex = 1,
+      ncol = 2,
+      bg = rgb(255, 255, 255, 175, maxColorValue = 255)
+    )
+    #text(0,0,)
+    dev.off()
+    
+    png(
+      paste0(path.out, "AMF-diurnal-seasonal-cluster-",
+             target.var,
+             "-tree-fan-", target.dist, "-igbp.png"),
+      width = 9,
+      height = 9,
+      units = "in",
+      pointsize = 10,
+      res = 300
+    )
+    par(mfrow = c(1, 1), mar = c(3.5, 3.5, 3.5, 3.5), oma= c(0, 0, 0, 0))
+    plot(
+      hc.plot.tree,
+      type = "fan",
+      tip.color = full.ls[hc.plot.tree$tip.label,][, "igbp.color"],
+      label.offset = scale.facor,
+      #show.node.label=T,
+      cex = 0.65,
+      no.margin = T
+    )
+    legend(
+      "center",
+      legend = igbp.color.table$plot.text[igbp.color.table$igbp %in% unique(full.ls$IGBP)],
+      fill = igbp.color.table$col[igbp.color.table$igbp %in% unique(full.ls$IGBP)],
+      border = NA,
+      box.lty = 0,
+      #bty = "n",
+      cex = 1,
+      ncol = 2,
+      bg = rgb(255, 255, 255, 175, maxColorValue = 255)
+    )
+    #text(0,0,)
+    dev.off()
+    
+  png(
+      paste0(path.out, "AMF-diurnal-seasonal-cluster-",
+             target.var,
+             "-tree-radial-", target.dist, ".png"),
+      width = 9,
+      height = 9,
+      units = "in",
+      pointsize = 10,
+      res = 300
+    )
+    par(mfrow = c(1, 1), mar = c(3.5, 3.5, 3.5, 3.5), oma= c(0, 0, 0, 0))
+    plot(
+      hc.plot.tree,
+      type = "radial",
+      tip.color = rgb(col_pan$r[col_pan_get],
+                      col_pan$g[col_pan_get],
+                      col_pan$b[col_pan_get], maxColorValue = 255),
+      label.offset = scale.facor * ifelse(target.var %in% c("NETRAD"),
+                                          0.00005, 
+                                          ifelse(target.var %in% c("LE", "H", "SWC"), 
+                                                 0.0001, 0.0002)),
+      #show.node.label=T,
+      cex = 0.65,
+      no.margin = T
+    )
+    #text(0,0,)
+    dev.off()
+    
+    png(
+      paste0(path.out, "AMF-diurnal-seasonal-cluster-",
+             target.var,
+             "-tree-radial-", target.dist, "-ecoregion.png"),
+      width = 9,
+      height = 9,
+      units = "in",
+      pointsize = 10,
+      res = 300
+    )
+    par(mfrow = c(1, 1), mar = c(3.5, 3.5, 3.5, 3.5), oma= c(0, 0, 0, 0))
+    plot(
+      hc.plot.tree,
+      type = "radial",
+      tip.color = full.ls[hc.plot.tree$tip.label,][, "ecoregion.color"],
+      label.offset = scale.facor * ifelse(target.var %in% c("NETRAD"),
+                                          0.00005, 
+                                          ifelse(target.var %in% c("LE", "H", "SWC"), 
+                                                 0.0001, 0.0002)),
+      #show.node.label=T,
+      cex = 0.65,
+      no.margin = T
+    )
+    legend(
+      "center",
+      legend = ecoregion.color.table$plot.text[ecoregion.color.table$ecoregion %in% unique(full.ls$eco_L1)],
+      fill = ecoregion.color.table$col[ecoregion.color.table$ecoregion %in% unique(full.ls$eco_L1)],
+      border = NA,
+      box.lty = 0,
+      #bty = "n",
+      cex = 1,
+      ncol = 2,
+      bg = rgb(255, 255, 255, 175, maxColorValue = 255)
+    )
+    #text(0,0,)
+    dev.off()
+    
+    png(
+      paste0(path.out, "AMF-diurnal-seasonal-cluster-",
+             target.var,
+             "-tree-radial-", target.dist, "-igbp.png"),
+      width = 9,
+      height = 9,
+      units = "in",
+      pointsize = 10,
+      res = 300
+    )
+    par(mfrow = c(1, 1), mar = c(3.5, 3.5, 3.5, 3.5), oma= c(0, 0, 0, 0))
+    plot(
+      hc.plot.tree,
+      type = "radial",
+      tip.color = full.ls[hc.plot.tree$tip.label,][, "igbp.color"],
+      label.offset = scale.facor * ifelse(target.var %in% c("NETRAD"),
+                                          0.00005, 
+                                          ifelse(target.var %in% c("LE", "H", "SWC"), 
+                                                 0.0001, 0.0002)),
+      #show.node.label=T,
+      cex = 0.65,
+      no.margin = T
+    )
+    legend(
+      "center",
+      legend = igbp.color.table$plot.text[igbp.color.table$igbp %in% unique(full.ls$IGBP)],
+      fill = igbp.color.table$col[igbp.color.table$igbp %in% unique(full.ls$IGBP)],
+      border = NA,
+      box.lty = 0,
+      #bty = "n",
+      cex = 1,
+      ncol = 2,
+      bg = rgb(255, 255, 255, 175, maxColorValue = 255)
+    )
+    #text(0,0,)
+    dev.off()
+    
     
     ############################################################################
     ## Map 
@@ -551,18 +768,18 @@ for (l1 in 1:length(target.var.ls)) {
     points(
       full.ls$LOCATION_LONG[!is.na(full.ls[,paste0(target.var, "_clust_group_", target.dist)])],
       full.ls$LOCATION_LAT[!is.na(full.ls[,paste0(target.var, "_clust_group_", target.dist)])],
-      col = full.ls[,paste0(target.var, "_color_", target.dist)][!is.na(full.ls[,paste0(target.var, "_clust_group_", target.dist)])],
+      col = "white", 
+      bg = full.ls[,paste0(target.var, "_color_", target.dist)][!is.na(full.ls[,paste0(target.var, "_clust_group_", target.dist)])],
       cex = 0.75,
       pch = 21,
-      lwd = 1
+      lwd = 0.4
     )
     legend(
       -165,
       10,
-      title = "Group (n)",
+      title = "Group",
       title.adj = 0,
-      legend = paste0(col_pan[, 4], " (", 
-                      table(full.ls[, paste0(target.var, "_clust_group_", target.dist)]), ")"),
+      legend = col_pan[, 4],
       fill = rgb(col_pan$r,
                  col_pan$g,
                  col_pan$b, maxColorValue = 255),
