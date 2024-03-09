@@ -66,7 +66,7 @@ cluster_color_panel2 <- function(target.var){
           0, 0,
           0, 11,
           14, 0,
-          9,
+          0,
           99,
           NA),
     USTAR = c(0, 8, 0,

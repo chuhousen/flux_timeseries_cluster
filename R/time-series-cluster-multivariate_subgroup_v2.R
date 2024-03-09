@@ -26,18 +26,14 @@ source(paste0(RDir, "ecoregion_table.R"))
 ###### Control parameter
 ver <- "20231019-12h7d"
 dist.ls <- c("dtw")#, "euclidean")
-use.prescribed.col <- T
+use.prescribed.col <- F
 
 len.ts <- 52 * 12  ## length of time series
-n.grp <- seq(30, 75, by = 1)  # searching window for the n of clusters/branches to keep 
+n.grp <- seq(5, 15, by = 1)  # searching window for the n of clusters/branches to keep 
 
 # target variables to run multi-variate clustering
-target.var.ls <- list(#c("NETRAD", "TA", "VPD", "SWC"),
-                      c("NEE", "LE", "H", "USTAR"))
-                      #c("NEE", "LE", "H", "USTAR", "NETRAD", "TA", "VPD", "SWC"))
-target.var.outname.ls <- c(#"ALL_MET", 
-                            "ALL_FLUX")
-                        #, "ALL_FLUXMET")
+target.var.ls <- list(c("NEE", "LE", "H", "USTAR"))
+target.var.outname.ls <- c("ALL_FLUX")
 
 path.in <- paste0(path.in.root, ver, "\\")
 path.out <- paste0(path.out.root, ver, "\\")
@@ -67,12 +63,16 @@ src.list.in <- src.list.in[which(substr(
   stop = nchar(src.list.in) - 4
 ) == "MEDIAN")]
 
+### Drop non-target groups
 src.list.in <- src.list.in[which(substr(src.list.in,
                                         start = 1,
-                                        stop = 6) %in% full.ls$SITE_ID)]
-
-### Drop problematic cases
-## drop.ls<-c("BR-CST","CA-SCB","US-Elm","US-Esm","US-Hn2","US-NC2",)
+                                        stop = 6) %in% full.ls$SITE_ID[
+                                          full.ls$eco_L1_name %in% c("Mediterranean California")])]
+sub.name <- "MCA"
+# "Great Plains"
+# "Eastern Temperate Forests"
+# "Northern Forests"
+# "Mediterranean California"
 
 ## add ecoregion/IGBP color panels
 if(!"igbp.color" %in% colnames(full.ls)){
@@ -143,7 +143,7 @@ for (l1 in 1:length(target.var.ls)) {
     
     ## check whether missing values
     if (sum(is.na(data.tmp)) != 0 |
-        (site.ls[i0] == "US-BZF" & "SWC" %in% target.var.ls[[l1]])) {
+        (site.ls[i0] == "US-BZF" & "SWC" %in% target.var.ls[l1])) {
       drop.case <- c(drop.case, site.ls[i0])
     }
   }
@@ -153,7 +153,7 @@ for (l1 in 1:length(target.var.ls)) {
     length(src.ls) - length(drop.case),
     "has sufficient data"
   ))
-  
+
   if (length(drop.case) > 0) {
     for (i1 in 1:length(drop.case)) {
       src.ls <- src.ls[site.ls != drop.case[i1]]
@@ -212,16 +212,16 @@ for (l1 in 1:length(target.var.ls)) {
     
   }
   
-  write.csv(
-    data.pre,
-    paste0(
-      path.out,
-      "AMF-diurnal-seasonal-cluster-",
-     target.var.outname.ls[l1],
-      "-composite_mean.csv"
-    ),
-    row.names = F
-  )
+  # write.csv(
+  #   data.pre,
+  #   paste0(
+  #     path.out,
+  #     "AMF-diurnal-seasonal-cluster-",
+  #    target.var.outname.ls[l1],
+  #     "-composite_mean.csv"
+  #   ),
+  #   row.names = F
+  # )
   
   ###### Loop through diff distance metric
   for(dd in 1: length(dist.ls)){
@@ -279,55 +279,55 @@ for (l1 in 1:length(target.var.ls)) {
       }
     }
     
-    write.csv(
-      cvi.est,
-      paste0(path.out, "AMF-diurnal-seasonal-cluster-", 
-             target.var.outname.ls[l1], "-CVI-", target.dist,".csv"),
-      quote = F
-    )
+    # write.csv(
+    #   cvi.est,
+    #   paste0(path.out, "AMF-diurnal-seasonal-cluster-", 
+    #          target.var.outname.ls[l1], "-CVI-", target.dist,".csv"),
+    #   quote = F
+    # )
     
-    png(
-      paste0(path.out, "AMF-diurnal-seasonal-cluster-", 
-             target.var.outname.ls[l1],
-             "-ncluster_cvi-", target.dist, ".png"),
-      width = 6,
-      height = 4.5,
-      units = "in",
-      pointsize = 10,
-      res = 300
-    )
-    plot(
-      n.grp,
-      cvi.est[, 1] / max(cvi.est[, 1]),
-      type = "l",
-      xlim = range(n.grp),
-      ylim = c(0, 1.2),
-      las = 1,
-      xlab = "number of cluster",
-      ylab = "normalized cluster validity index",
-      lwd = 2,
-      col = rainbow(6)[1],
-      main = target.var
-    )
-    for (i in 2:ncol(cvi.est)) {
-      lines(n.grp,
-            cvi.est[, i] / max(cvi.est[, i]),
-            col = rainbow(6)[i],
-            lwd = 2)
-    }
-    legend(
-      10,
-      1.2,
-      lty = 1,
-      col = c("black", rainbow(6)),
-      ncol = 4,
-      legend = c("MEAN", colnames(cvi.est)),
-      lwd = 1.5,
-      bty = "n"
-    )
-    lines(n.grp, apply(cvi.est, 1, mean), lwd = 3)
-    abline(v = n.grp[which(apply(cvi.est, 1, mean) == max(apply(cvi.est, 1, mean)))], lty = 4)
-    dev.off()
+    # png(
+    #   paste0(path.out, "AMF-diurnal-seasonal-cluster-", 
+    #          target.var.outname.ls[l1],
+    #          "-ncluster_cvi-", target.dist, ".png"),
+    #   width = 6,
+    #   height = 4.5,
+    #   units = "in",
+    #   pointsize = 10,
+    #   res = 300
+    # )
+    # plot(
+    #   n.grp,
+    #   cvi.est[, 1] / max(cvi.est[, 1]),
+    #   type = "l",
+    #   xlim = range(n.grp),
+    #   ylim = c(0, 1.2),
+    #   las = 1,
+    #   xlab = "number of cluster",
+    #   ylab = "normalized cluster validity index",
+    #   lwd = 2,
+    #   col = rainbow(6)[1],
+    #   main = target.var
+    # )
+    # for (i in 2:ncol(cvi.est)) {
+    #   lines(n.grp,
+    #         cvi.est[, i] / max(cvi.est[, i]),
+    #         col = rainbow(6)[i],
+    #         lwd = 2)
+    # }
+    # legend(
+    #   10,
+    #   1.2,
+    #   lty = 1,
+    #   col = c("black", rainbow(6)),
+    #   ncol = 4,
+    #   legend = c("MEAN", colnames(cvi.est)),
+    #   lwd = 1.5,
+    #   bty = "n"
+    # )
+    # lines(n.grp, apply(cvi.est, 1, mean), lwd = 3)
+    # abline(v = n.grp[which(apply(cvi.est, 1, mean) == max(apply(cvi.est, 1, mean)))], lty = 4)
+    # dev.off()
     
     ## Choose optimal tree number based on CH (Calinski-Harabasz) index
     n.grp.opt <-
@@ -437,9 +437,9 @@ for (l1 in 1:length(target.var.ls)) {
     png(
       paste0(path.out, "AMF-diurnal-seasonal-cluster-",
              target.var.outname.ls[l1],
-             "-tree-", target.dist, ".png"),
-      width = 9,
-      height = 9,
+             "-tree-", target.dist, "-", sub.name, ".png"),
+      width = 6,
+      height = 6,
       units = "in",
       pointsize = 10,
       res = 300
@@ -453,7 +453,7 @@ for (l1 in 1:length(target.var.ls)) {
                       col_pan$b[col_pan_get], maxColorValue = 255),
       label.offset = scale.facor,
       #show.node.label=T,
-      cex = 0.65,
+      cex = 0.8,
       no.margin = T
     )
     #text(0,0,)
@@ -462,9 +462,9 @@ for (l1 in 1:length(target.var.ls)) {
     png(
       paste0(path.out, "AMF-diurnal-seasonal-cluster-",
              target.var.outname.ls[l1],
-             "-tree-", target.dist, "-ecoregion.png"),
-      width = 9,
-      height = 9,
+             "-tree-", target.dist, "-", sub.name, "-ecoregion.png"),
+      width = 6,
+      height = 6,
       units = "in",
       pointsize = 10,
       res = 300
@@ -476,7 +476,7 @@ for (l1 in 1:length(target.var.ls)) {
       tip.color = full.ls[hc.plot.tree$tip.label,][, "ecoregion.color"],
       label.offset = scale.facor,
       #show.node.label=T,
-      cex = 0.65,
+      cex = 0.8,
       no.margin = T
     )
     legend(
@@ -486,7 +486,7 @@ for (l1 in 1:length(target.var.ls)) {
       border = NA,
       box.lty = 0,
       #bty = "n",
-      cex = 1,
+      cex = 0.8,
       ncol = 2,
       bg = rgb(255, 255, 255, 175, maxColorValue = 255)
     )
@@ -496,9 +496,9 @@ for (l1 in 1:length(target.var.ls)) {
     png(
       paste0(path.out, "AMF-diurnal-seasonal-cluster-",
              target.var.outname.ls[l1],
-             "-tree-", target.dist, "-igbp.png"),
-      width = 9,
-      height = 9,
+             "-tree-", target.dist, "-", sub.name, "-igbp.png"),
+      width = 6,
+      height = 6,
       units = "in",
       pointsize = 10,
       res = 300
@@ -510,7 +510,7 @@ for (l1 in 1:length(target.var.ls)) {
       tip.color = full.ls[hc.plot.tree$tip.label,][, "igbp.color"],
       label.offset = scale.facor,
       #show.node.label=T,
-      cex = 0.65,
+      cex = 0.8,
       no.margin = T
     )
     legend(
@@ -520,7 +520,7 @@ for (l1 in 1:length(target.var.ls)) {
       border = NA,
       box.lty = 0,
       #bty = "n",
-      cex = 1,
+      cex = 0.8,
       ncol = 2,
       bg = rgb(255, 255, 255, 175, maxColorValue = 255)
     )
@@ -530,9 +530,9 @@ for (l1 in 1:length(target.var.ls)) {
     png(
       paste0(path.out, "AMF-diurnal-seasonal-cluster-",
              target.var.outname.ls[l1],
-             "-tree-radial-", target.dist, ".png"),
-      width = 9,
-      height = 9,
+             "-tree-radial-", target.dist, "-", sub.name, ".png"),
+      width = 6,
+      height = 6,
       units = "in",
       pointsize = 10,
       res = 300
@@ -546,7 +546,7 @@ for (l1 in 1:length(target.var.ls)) {
                       col_pan$b[col_pan_get], maxColorValue = 255),
       label.offset = scale.facor * 0.0002,
       #show.node.label=T,
-      cex = 0.65,
+      cex = 0.8,
       no.margin = T
     )
     #text(0,0,)
@@ -555,9 +555,9 @@ for (l1 in 1:length(target.var.ls)) {
     png(
       paste0(path.out, "AMF-diurnal-seasonal-cluster-",
              target.var.outname.ls[l1],
-             "-tree-radial-", target.dist, "-ecoregion.png"),
-      width = 9,
-      height = 9,
+             "-tree-radial-", target.dist, "-", sub.name, "-ecoregion.png"),
+      width = 6,
+      height = 6,
       units = "in",
       pointsize = 10,
       res = 300
@@ -569,7 +569,7 @@ for (l1 in 1:length(target.var.ls)) {
       tip.color = full.ls[hc.plot.tree$tip.label,][, "ecoregion.color"],
       label.offset = scale.facor * 0.0002,
       #show.node.label=T,
-      cex = 0.65,
+      cex = 0.8,
       no.margin = T
     )
     legend(
@@ -579,7 +579,7 @@ for (l1 in 1:length(target.var.ls)) {
       border = NA,
       box.lty = 0,
       #bty = "n",
-      cex = 1,
+      cex = 0.8,
       ncol = 2,
       bg = rgb(255, 255, 255, 175, maxColorValue = 255)
     )
@@ -589,9 +589,9 @@ for (l1 in 1:length(target.var.ls)) {
     png(
       paste0(path.out, "AMF-diurnal-seasonal-cluster-",
              target.var.outname.ls[l1],
-             "-tree-radial-", target.dist, "-igbp.png"),
-      width = 9,
-      height = 9,
+             "-tree-radial-", target.dist, "-", sub.name, "-igbp.png"),
+      width = 6,
+      height = 6,
       units = "in",
       pointsize = 10,
       res = 300
@@ -603,7 +603,7 @@ for (l1 in 1:length(target.var.ls)) {
       tip.color = full.ls[hc.plot.tree$tip.label,][, "igbp.color"],
       label.offset = scale.facor * 0.0002,
       #show.node.label=T,
-      cex = 0.65,
+      cex = 0.8,
       no.margin = T
     )
     legend(
@@ -613,7 +613,7 @@ for (l1 in 1:length(target.var.ls)) {
       border = NA,
       box.lty = 0,
       #bty = "n",
-      cex = 1,
+      cex = 0.8,
       ncol = 2,
       bg = rgb(255, 255, 255, 175, maxColorValue = 255)
     )
@@ -624,7 +624,14 @@ for (l1 in 1:length(target.var.ls)) {
     ############################################################################
     ## Map 
     png(
-      paste0(path.out, "AMF-diurnal-seasonal-cluster-", target.var.outname.ls[l1], "-map-", target.dist,".png"),
+      paste0(
+        path.out,
+        "AMF-diurnal-seasonal-cluster-",
+        target.var.outname.ls[l1],
+        "-map-",
+        target.dist, "-", sub.name,
+        ".png"
+      ),
       height = 5,
       width = 4.6,
       res = 400,
@@ -707,51 +714,11 @@ for (l1 in 1:length(target.var.ls)) {
     
     write.csv(table(short.ls$eco_igbp,
                     short.ls$group),
-              file = paste0(path.out, "AMF-diurnal-seasonal-cluster-", target.var.outname.ls[l1], "-", target.dist, "eco_igbp.csv"),
+              file = paste0(path.out, 
+                            "AMF-diurnal-seasonal-cluster-",
+                            target.var.outname.ls[l1],
+                            "-", target.dist, "-", sub.name, "_eco_igbp.csv"),
               row.names = T) 
-    
-    ####### Logistic regression to explore the predictability of IGBP & Ecoregion
-    sink(file = paste(
-      path.out,
-      "AMF-diurnal-seasonal-cluster-", target.var.outname.ls[l1], "-", target.dist,
-      "-logistic-summary.txt",
-      sep = ""
-    ))
-    
-    print(paste("IGBP + Ecoregion"))
-    multi_mo <- multinom(group ~  igbp + ecoregion, 
-                         data = na.omit(short.ls),
-                         MaxNWts = 10000000,
-                         model = TRUE)
-    #summary(multi_mo)
-    multi_mo_R2 <- PseudoR2(multi_mo, which = c("Nagelkerke"))
-    print(paste("Pseudo R2:", round(multi_mo_R2, digits = 3)))
-    print(paste("                                                "))
-    
-    print(paste("IGBP only"))
-    multi_mo1 <- multinom(group ~  igbp, 
-                          data = na.omit(short.ls),
-                          MaxNWts = 10000000,
-                          model = TRUE)
-    #summary(multi_mo1)
-    multi_mo1_R2 <- PseudoR2(multi_mo1, which = c("Nagelkerke"))
-    print(paste("Pseudo R2", round(multi_mo1_R2, digits = 3)))
-    print(paste("                                                "))
-    
-    print(paste("Ecoregion only"))
-    multi_mo2 <- multinom(group ~  ecoregion, 
-                          data = na.omit(short.ls),
-                          MaxNWts = 10000000,
-                          model = TRUE)
-    #summary(multi_mo2)
-    multi_mo2_R2 <- PseudoR2(multi_mo2, which = c("Nagelkerke"))
-    print(paste("Pseudo R2", round(multi_mo2_R2, digits = 3)))
-    print(paste("                                                "))
-    
-    sink()
-    
-    
-    
   }
   
   print(paste("################################################"))
@@ -759,9 +726,9 @@ for (l1 in 1:length(target.var.ls)) {
   
 }
 
-write.csv(
-  full.ls,
-  paste0(path.out, "ALL_BASE_site_short_list3.csv"),
-  quote = T,
-  row.names = F
-)
+# write.csv(
+#   full.ls,
+#   paste0(path.out, "ALL_BASE_site_short_list3.csv"),
+#   quote = T,
+#   row.names = F
+# )

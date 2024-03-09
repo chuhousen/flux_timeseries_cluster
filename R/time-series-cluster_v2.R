@@ -61,7 +61,7 @@ target.lab.ls <- list(expression(NEE~'('*mu*mole~m^{-2}~s^{-1}*')'),
                       expression(USTAR~'('*m~s^{-1}*')'),
                       expression(NETRAD~'('*W~m^{-2}*')'),
                       expression(TA~'('*degree~C*')'),
-                      expression(VPD~'('*kPa*')'),
+                      expression(VPD~'('*hPa*')'),
                       expression(SWC~'('*'%'*')')
                       #expression(FCH4~'('*nmole~m^{-2}~s^{-1}*')'),
                       #expression(P~'('*mm*')'),
