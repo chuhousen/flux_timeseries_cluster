@@ -2,10 +2,14 @@
 .Rproj
 .Rhistory
 .RData
+.RDatatmp
 .Ruserdata
 diurnal-seasonality/
 cluster-output/
 variable-year/
 .gitignore
 summary
-*.csv
+.csv
+.xlsx
+R/archived/
+site_meta/
