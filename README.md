@@ -3,7 +3,7 @@
 This project aims to use the key time-series features (e.g., diurnal, seasonal dynamics) of flux & met variables, to explore the similarity among sites across AmeriFlux. This repository supplements the manuscript *Network of Networks: Time-Series Clustering of AmeriFlux Sites* by Reed, Chu, Peter, Chen, et al. [in prep]. Journal TBD.
 
 ### File sources
-All available AmeriFlux BASE files (i.e., accessed on 2023/09/22), and down-select based on the data availability. 
+All available AmeriFlux BASE files (https://ameriflux.lbl.gov/, accessed on 2023/09/22), and down-select based on the data availability. 
 
 ### Target variables
 - Flux variables: net ecosystem exchange (NEE) of carbon dioxide, sensible heat flux (H), latent heat flux (LE), friction velocity (USTAR, i.e., a measure of momentum flux).
