@@ -50,7 +50,6 @@ All available AmeriFlux BASE files (i.e., accessed on 2023/09/22), and down-sele
   - diurnal-seasonality-pre.v6.R calculates composite time series from BASE files
   - time-series-cluster_v2.R clusters time series for each of target variables (univariate)
   - time-series-cluster-multivariate_v2.R clusters time series using all target variables (multivariate)
-- /ecoregion source files of ecoregions
 
 ----
 
