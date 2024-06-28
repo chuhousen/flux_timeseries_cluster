@@ -115,8 +115,8 @@ var.info <- var.info.tmp[[1]]
 #############################################################################################
 ### Specify the target site list
 ## could be full list (initial pull out), pull from get_full_list function
-target.site <-
-  get_full_list(base.in)   
+# target.site <-
+#   get_full_list(base.in)   
 ##  or specified subset for update only, by c(CC-XXX,.....)
 target.site<-c("US-Oho")
 

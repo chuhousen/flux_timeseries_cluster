@@ -27,11 +27,11 @@ source(paste0(RDir, "ecoregion_table.R"))
 source(paste0(RDir, "igbp_table.R"))
 
 ###### Control parameter
-ver <- "20231019-12h7d"
+ver <- "20231019-24h15d"
 dist.ls <- c("dtw")#, "euclidean")
 use.prescribed.col <- T
 
-len.ts <- 52 * 12  ## length of time series
+len.ts <- 24 * 24  ## length of time series
 len.ts.tck <- 24
 # 24 * 24 for 20231019-24h15d
 # 52 * 12 for 20231019-12h7d
@@ -323,7 +323,7 @@ for (l1 in 1:length(target.var.ls)) {
       paste0(path.out, "AMF-diurnal-seasonal-cluster-", target.var, "-distMatrix-", target.dist,".csv"),
       quote = T
     )
-    
+      
     ## main clustering function
     hc1 <- dtwclust::tsclust(
       t(data.pre),
