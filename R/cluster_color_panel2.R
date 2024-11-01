@@ -36,6 +36,28 @@ cluster_color_panel2 <- function(target.var){
           169,
           70),
     ## based on 12h-7d results
+    GPP_NT_VUT_REF = c(0, 32, 0, ## 0 as not used
+            0, 0, 0,
+            0, 47, 0,
+            0,
+            50, 0, 
+            0, 0,
+            0, 55,
+            58, 0,
+            0,
+            99, ## 99 as all others
+            NA),
+    RECO_NT_VUT_REF = c(0, 6, 0, ## 0 as not used
+            0, 8, 0,
+            0, 11, 0,
+            15,
+            16, 0, 
+            0, 46,
+            0, 47,
+            48, 0,
+            0,
+            99, ## 99 as all others
+            NA),
     NEE = c(0, 9, 0, ## 0 as not used
             0, 0, 0,
             0, 11, 0,

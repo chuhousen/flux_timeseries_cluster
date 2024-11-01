@@ -27,11 +27,11 @@ source(paste0(RDir, "ecoregion_table.R"))
 source(paste0(RDir, "igbp_table.R"))
 
 ###### Control parameter
-ver <- "20231019-24h15d"
+ver <- "20241004-GPP"
 dist.ls <- c("dtw")#, "euclidean")
 use.prescribed.col <- T
 
-len.ts <- 24 * 24  ## length of time series
+len.ts <- 52 * 12  ## length of time series
 len.ts.tck <- 24
 # 24 * 24 for 20231019-24h15d
 # 52 * 12 for 20231019-12h7d
@@ -43,42 +43,53 @@ n.grp <- seq(30, 75, by = 1)
         #c(10:30) for cluster ms
 
 ## original colnames from diurnal-seasonal files, revising the colname
-sel.var <- c("FC", "SC", "NEE", "LE", "H",
-             #"FCH4", "SW_IN", "WTD", "P",
-             "USTAR", "NETRAD", "TA", "VPD", 
-             "SWC")
+sel.var <- c("TA_F", "SW_IN_F", "LW_IN_F", "VPD_F",
+             "LE_F_MDS", "H_F_MDS", "NEE_VUT_REF",
+             "RECO_NT_VUT_REF", "GPP_NT_VUT_REF",
+             "RECO_DT_VUT_REF", "GPP_DT_VUT_REF")
+#              c("FC", "SC", "NEE", "LE", "H",
+#              "USTAR", "NETRAD", "TA", "VPD", 
+#              "SWC")
 
 drop.ls<-c("FC", "SC")
 
 # target variables to run uni-variate clustering
-target.var.ls <- c("NEE", "LE", "H", "USTAR",
-                   "NETRAD", "TA", "VPD", "SWC"
-                   #"FCH4", "P", "WTD"
-                   )
-target.lab.ls <- list(expression(NEE~'('*mu*mole~m^{-2}~s^{-1}*')'),
-                      expression(LE~'('*W~m^{-2}*')'),
-                      expression(H~'('*W~m^{-2}*')'),
-                      expression(USTAR~'('*m~s^{-1}*')'),
-                      expression(NETRAD~'('*W~m^{-2}*')'),
-                      expression(TA~'('*degree~C*')'),
-                      expression(VPD~'('*hPa*')'),
-                      expression(SWC~'('*'%'*')')
+target.var.ls <- c("GPP_NT_VUT_REF",
+                   "RECO_NT_VUT_REF")
+  # c("NEE", "LE", "H", "USTAR",
+  #                  "NETRAD", "TA", "VPD", "SWC"
+  #                  #"FCH4", "P", "WTD"
+  #                  )
+
+target.lab.ls <- list(expression(GPP~'('*mu*mole~m^{-2}~s^{-1}*')'),
+                      expression(RECO~'('*mu*mole~m^{-2}~s^{-1}*')'))
+#                 list(expression(NEE~'('*mu*mole~m^{-2}~s^{-1}*')'),
+#                       expression(LE~'('*W~m^{-2}*')'),
+#                       expression(H~'('*W~m^{-2}*')'),
+#                       expression(USTAR~'('*m~s^{-1}*')'),
+#                       expression(NETRAD~'('*W~m^{-2}*')'),
+#                       expression(TA~'('*degree~C*')'),
+#                       expression(VPD~'('*hPa*')'),
+#                       expression(SWC~'('*'%'*')')
                       #expression(FCH4~'('*nmole~m^{-2}~s^{-1}*')'),
                       #expression(P~'('*mm*')'),
                       #expression(WTD~'('*m*')')
+                      #)
+target.rng.ls <- list(seq(0, 60, length.out = 6),
+                      seq(0, 30, length.out = 6)
                       )
-target.rng.ls <- list(seq(-60, 40, length.out = 6),
-                      seq(-130, 520, length.out = 6),
-                      seq(-130, 520, length.out = 6),
-                      seq(0, 1.6, length.out = 5),
-                      seq(-300, 900, length.out = 5),
-                      seq(-40, 40, length.out = 5),
-                      seq(0, 60, length.out = 5),
-                      seq(0, 100, length.out = 5)
-                      #seq(-100, 500, length.out = 6),
-                      #seq(0, 1500, length.out = 6),
-                      #seq(-15, 15, length.out = 5)
-                      )
+                  # list(seq(-60, 40, length.out = 6),
+                  #     seq(-130, 520, length.out = 6),
+                  #     seq(-130, 520, length.out = 6),
+                  #     seq(0, 1.6, length.out = 5),
+                  #     seq(-300, 900, length.out = 5),
+                  #     seq(-40, 40, length.out = 5),
+                  #     seq(0, 60, length.out = 5),
+                  #     seq(0, 100, length.out = 5)
+                  #     #seq(-100, 500, length.out = 6),
+                  #     #seq(0, 1500, length.out = 6),
+                  #     #seq(-15, 15, length.out = 5)
+                  #     )
 
 path.in <- paste0(path.in.root, ver, "\\")
 
@@ -90,7 +101,8 @@ path.out <- paste(path.out.root, ver, "\\", sep = "")
 ## extract full site list
 full.ls <-
   read.csv(
-    paste(path.in, "ALL_BASE_site_short_list.csv", sep = ""),
+    #paste(path.in, "ALL_BASE_site_short_list.csv", sep = ""),
+    paste(path.in, "ALL_FLUXNET_site_list.csv", sep = ""),
     na = "-9999",
     header = T,
     stringsAsFactors = F
@@ -164,8 +176,11 @@ full.ls$eco_L3 <- full.ls$NA_L3CODE
 full.ls$eco_L3[is.na(full.ls$eco_L3)] <- full.ls$LEVEL3[is.na(full.ls$eco_L3)]
 
 ### manually fill in 
-full.ls$eco_L1[which(full.ls$SITE_ID == "AR-TF1")] <- 
-  full.ls$eco_L1[which(full.ls$SITE_ID == "AR-TF2")]
+if("AR-TF1" %in% full.ls$SITE_ID & 
+   "AR-TF2" %in% full.ls$SITE_ID){
+  full.ls$eco_L1[which(full.ls$SITE_ID == "AR-TF1")] <- 
+    full.ls$eco_L1[which(full.ls$SITE_ID == "AR-TF2")]
+}
 
 full.ls$eco_L1_name <- NA
 for(ee in 1:nrow(ecoregion.code.l1)){
@@ -1084,7 +1099,8 @@ for (l1 in 1:length(target.var.ls)) {
 
 write.csv(
   full.ls,
-  paste0(path.out, "ALL_BASE_site_short_list2.csv"),
+  #paste0(path.out, "ALL_BASE_site_short_list2.csv"),
+  paste0(path.out, "ALL_FLUXNET_site_list2.csv"),
   quote = T,
   row.names = F
 )
