@@ -63,3 +63,6 @@ All available AmeriFlux BASE files (https://ameriflux.lbl.gov/, accessed on 2023
 - David E Reed: Yale University
 - Brad G Peter: University of Arkansas
 
+----
+## Citation
+Chu, H. (2024). Time-Series Clustering of AmeriFlux Sites (v1.0.0). Zenodo. https://doi.org/10.5281/zenodo.12585997
