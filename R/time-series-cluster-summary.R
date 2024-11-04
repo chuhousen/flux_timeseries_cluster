@@ -4,6 +4,8 @@ path <-
   "D:\\Housen\\Flux\\Data-exploring\\00_Synthesis_AmeriFlux_Time_Series_Cluster\\flux_timeseries_cluster\\"
 path.in.root <- paste0(path, "diurnal-seasonality\\")
 path.out.root <- paste0(path, "cluster-output\\")
+sum.out.root <- paste0(path, "summary\\")
+
 RDir <- paste0(path, "R\\")
 map.in <- paste0(path, "ecoregion\\")
 cru.dir <- paste0(path, "cru\\clean\\")
@@ -110,7 +112,11 @@ for (k in 1:nrow(full.ls2)) {
     pet.yr.mn2[full.ls2$LAT[k], full.ls2$LONG[k]]
 }
 
-## Work by variables
+################################################################################
+##
+## Work for all flux
+##
+################################################################################
 for (l1 in 1:length(target.var.ls)) {
   
   target.var <- target.var.ls[l1]
@@ -318,7 +324,11 @@ for (l1 in 1:length(target.var.ls)) {
   print(paste("                                                "))
 }
 
-## Work by variables
+################################################################################
+## Work for GPP & RECO
+##
+################################################################################
+
 for (l1 in 1:length(target.var.ls2)) {
   
   target.var <- target.var.ls2[l1]
@@ -530,7 +540,11 @@ cluster_color_panel_get <- cluster_color_panel2("ALL_FLUX")
 cluster_color_panel_get[which(cluster_color_panel_get[, 4] == 99), 4] <- "others"
 cluster_color_panel_get <- cluster_color_panel_get[-which(is.na(cluster_color_panel_get[, 4])), ]
 
-## Annual sum vs cluter
+################################################################################
+## Figure 4 in the main text 
+## Annual sum vs cluster mutivariate
+##
+################################################################################
 jpeg(
   paste0(path.out, "Annual_sum_All_FLUX_cluster.jpg", sep = ""),
   height = 8,
@@ -1046,3 +1060,94 @@ mtext(
 )
 
 dev.off()  
+
+################################################################################
+### Prepare supplement Table S1
+################################################################################
+out.ls <- merge.data.frame(full.ls,
+                           full.ls2[, c("SITE_ID",
+                                        "RECO_NT_VUT_REF_availability",
+                                        "RECO_NT_VUT_REF_availability_after_filling",
+                                        "GPP_NT_VUT_REF_availability",
+                                        "GPP_NT_VUT_REF_availability_after_filling",
+                                        "GPP_NT_VUT_REF_clust_group_dtw",
+                                        "RECO_NT_VUT_REF_clust_group_dtw",
+                                        "GPP_NT_VUT_REF_mean",
+                                        "RECO_NT_VUT_REF_mean")],
+                           by = "SITE_ID",
+                           all.x = T)
+
+out.ls <- out.ls[, c("SITE_ID", 
+                     "data_year_length",
+                     "IGBP", "eco_L1_name",
+                     "LOCATION_LAT", "LOCATION_LONG", "LOCATION_ELEV",
+                     "tmp2", "pre2", 
+                     "NEE_availability", "NEE_availability_after_filling",   
+                     "LE_availability", "LE_availability_after_filling",    
+                     "H_availability", "H_availability_after_filling",     
+                     "USTAR_availability", "USTAR_availability_after_filling", 
+                     "NETRAD_availability", "NETRAD_availability_after_filling",
+                     "TA_availability", "TA_availability_after_filling",    
+                     "VPD_availability", "VPD_availability_after_filling",   
+                     "SWC_availability", "SWC_availability_after_filling",
+                     "RECO_NT_VUT_REF_availability",
+                     "RECO_NT_VUT_REF_availability_after_filling",
+                     "GPP_NT_VUT_REF_availability",
+                     "GPP_NT_VUT_REF_availability_after_filling",
+                     "NEE_clust_group_dtw",
+                     "LE_clust_group_dtw",
+                     "H_clust_group_dtw",
+                     "USTAR_clust_group_dtw",
+                     "NETRAD_clust_group_dtw",
+                     "TA_clust_group_dtw",
+                     "VPD_clust_group_dtw",
+                     "SWC_clust_group_dtw",
+                     "ALL_FLUX_clust_group_dtw",
+                     "GPP_NT_VUT_REF_clust_group_dtw",
+                     "RECO_NT_VUT_REF_clust_group_dtw",
+                     "NEE_mean",
+                     "LE_mean",
+                     "H_mean",
+                     "USTAR_mean",
+                     "GPP_NT_VUT_REF_mean",
+                     "RECO_NT_VUT_REF_mean")]
+colnames(out.ls) <- c("SITE_ID", 
+                      "Data_year_length",
+                      "IGBP", "ECOREGION",
+                      "LOCATION_LAT", "LOCATION_LONG", "LOCATION_ELEV",
+                      "MAT_CRU", "MAP_CRU", 
+                      "NEE_availability", "NEE_availability_after_filling",   
+                      "LE_availability", "LE_availability_after_filling",    
+                      "H_availability", "H_availability_after_filling",     
+                      "USTAR_availability", "USTAR_availability_after_filling", 
+                      "NETRAD_availability", "NETRAD_availability_after_filling",
+                      "TA_availability", "TA_availability_after_filling",    
+                      "VPD_availability", "VPD_availability_after_filling",   
+                      "SWC_availability", "SWC_availability_after_filling",
+                      "RECO_availability",
+                      "RECO_availability_after_filling",
+                      "GPP_availability",
+                      "GPP_availability_after_filling",
+                      "NEE_cluster_group",
+                      "LE_cluster_group",
+                      "H_cluster_group",
+                      "USTAR_cluster_group",
+                      "NETRAD_cluster_group",
+                      "TA_cluster_group",
+                      "VPD_cluster_group",
+                      "SWC_cluster_group",
+                      "ALL_FLUX_cluster_group",
+                      "GPP_cluster_group",
+                      "RECO_cluster_group",
+                      "NEE_mean",
+                      "LE_mean",
+                      "H_mean",
+                      "USTAR_mean",
+                      "GPP_mean",
+                      "RECO_mean")  
+
+write.csv(out.ls,
+          paste0(sum.out.root, ver2, "\\",
+                 "TableS1_site_list_harmonic_202411rev.csv"),
+          row.names = F,
+          quote = F)
