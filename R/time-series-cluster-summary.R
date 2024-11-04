@@ -1146,6 +1146,19 @@ colnames(out.ls) <- c("SITE_ID",
                       "GPP_mean",
                       "RECO_mean")  
 
+## get HUP
+full.ls4 <-
+  read.csv(
+    paste(sum.out.root, "20231019\\ALL_BASE_site_short_list4.csv", sep = ""),
+    header = T,
+    stringsAsFactors = F
+  )
+
+out.ls <- merge.data.frame(out.ls,
+                           full.ls4[, c("SITE_ID",
+                                        "HUP")],
+                           all.x = T)
+
 write.csv(out.ls,
           paste0(sum.out.root, ver2, "\\",
                  "TableS1_site_list_harmonic_202411rev.csv"),
